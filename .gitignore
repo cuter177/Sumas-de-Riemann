@@ -44,3 +44,7 @@ Interfaz/data/
 # Java/JavaFX runtime
 java/
 javaFx/
+
+releasewin.bat
+
+release/

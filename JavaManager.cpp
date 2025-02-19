@@ -3,47 +3,85 @@
 #include <iostream>
 #include <filesystem>
 #include <vector>
+#include <thread>
+
 namespace fs = std::filesystem;
 
 JavaManager::JavaManager() {}
 
 std::wstring JavaManager::obtenerRutaProyecto() {
     wchar_t buffer[MAX_PATH];
-    GetModuleFileNameW(NULL, buffer, MAX_PATH);
-    fs::path exePath(buffer);
+    GetModuleFileNameW(nullptr, buffer, MAX_PATH);
 
-    // bin/Debug -> bin -> Riemann_2.0
-    fs::path root = exePath.parent_path().parent_path().parent_path();
+    // Ruta completa del ejecutable
+    fs::path exeDir = fs::path(buffer).parent_path();
 
-    return root.wstring();
+    // ============================================
+    // Modo desarrollo:
+    //   Riemann_2.0/bin/Debug/Documents.exe
+    // ============================================
+    if (exeDir.filename() == L"Debug" &&
+        exeDir.parent_path().filename() == L"bin") {
+        return exeDir.parent_path().parent_path().wstring();
+    }
+
+    // ============================================
+    // Modo release:
+    //   Riemann_2.0/Documents.exe
+    // ============================================
+    return exeDir.wstring();
 }
 
 void JavaManager::ejecutarJarEnThread() {
-    // YA NO detach() — queremos esperar el cierre del proceso Java
     std::thread t(&JavaManager::ejecutarJar, this);
-    t.detach();  // <--- si quieres que NO bloquee el hilo principal
+    t.detach();
 }
 
 void JavaManager::ejecutarJar() {
     std::wstring root = obtenerRutaProyecto();
 
-    // == Rutas ==
+    std::wcout << L"[DEBUG] Ruta base detectada: " << root << std::endl;
+
+    // =========================
+    // Rutas relativas al proyecto
+    // =========================
     std::wstring javaExe = root + L"\\java\\bin\\java.exe";
     std::wstring fxLib   = root + L"\\javaFx\\lib";
     std::wstring jarFile = root + L"\\Interfaz\\target\\Interfaz-Riemann.jar";
     std::wstring deps    = root + L"\\Interfaz\\target\\dependency\\*";
 
+    // =========================
     // Verificaciones
-    if (!fs::exists(javaExe))
-        std::wcerr << L"[ERROR] java.exe NO encontrado en: " << javaExe << std::endl;
+    // =========================
+    bool error = false;
 
-    if (!fs::exists(fxLib))
-        std::wcerr << L"[ERROR] Carpeta JavaFX NO encontrada en: " << fxLib << std::endl;
+    if (!fs::exists(javaExe)) {
+        std::wcerr << L"[ERROR] java.exe NO encontrado en: "
+                   << javaExe << std::endl;
+        error = true;
+    }
 
-    if (!fs::exists(jarFile))
-        std::wcerr << L"[ERROR] Interfaz.jar NO encontrado en: " << jarFile << std::endl;
+    if (!fs::exists(fxLib)) {
+        std::wcerr << L"[ERROR] Carpeta JavaFX NO encontrada en: "
+                   << fxLib << std::endl;
+        error = true;
+    }
 
-    // == Comando ==
+    if (!fs::exists(jarFile)) {
+        std::wcerr << L"[ERROR] Interfaz.jar NO encontrado en: "
+                   << jarFile << std::endl;
+        error = true;
+    }
+
+    if (error) {
+        std::wcerr << L"[ERROR] No se puede iniciar JavaFX por archivos faltantes."
+                   << std::endl;
+        return;
+    }
+
+    // =========================
+    // Construcción del comando
+    // =========================
     std::wstring command =
         L"\"" + javaExe + L"\" "
         L"--module-path \"" + fxLib + L"\" "
@@ -52,13 +90,14 @@ void JavaManager::ejecutarJar() {
         L"aplication.App";
 
     std::vector<wchar_t> cmd(command.begin(), command.end());
-    cmd.push_back(0);
+    cmd.push_back(L'\0');
 
     STARTUPINFOW si{};
     si.cb = sizeof(si);
+
     PROCESS_INFORMATION pi{};
 
-    // Working directory → /Interfaz
+    // Directorio de trabajo: Interfaz
     std::wstring workingDir = root + L"\\Interfaz";
 
     BOOL ok = CreateProcessW(
@@ -75,20 +114,21 @@ void JavaManager::ejecutarJar() {
     );
 
     if (!ok) {
-        std::wcerr << L"[ERROR] CreateProcessW falló: " << GetLastError() << std::endl;
+        std::wcerr << L"[ERROR] CreateProcessW falló: "
+                   << GetLastError() << std::endl;
         return;
     }
 
-    std::wcout << L"[C++] JavaFX ejecutándose... Esperando su cierre." << std::endl;
+    std::wcout << L"[C++] JavaFX ejecutándose..." << std::endl;
 
-    // ⏳ Espera hasta que JavaFX termine
+    // Esperar a que cierre JavaFX
     WaitForSingleObject(pi.hProcess, INFINITE);
 
-    std::wcout << L"[C++] JavaFX terminada. Cerrando aplicación C++..." << std::endl;
+    std::wcout << L"[C++] JavaFX terminada. Cerrando aplicación C++..."
+               << std::endl;
 
     CloseHandle(pi.hProcess);
     CloseHandle(pi.hThread);
 
-    //  Cerrar programa C++
     exit(0);
 }
