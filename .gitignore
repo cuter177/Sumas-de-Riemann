@@ -1,0 +1,13 @@
+# Archivos de Visual Studio / CLion / IDE
+*.sln
+*.vcxproj*
+.idea/
+*.iml
+cmake-build-*/
+
+# Archivos temporales de Windows
+Thumbs.db
+.DS_Store
+
+# Archivos de datos generados
+datos/*.json
