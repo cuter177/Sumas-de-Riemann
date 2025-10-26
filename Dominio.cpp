@@ -130,7 +130,7 @@ void Dominio::guardarRectangulosJson(const std::string& filename, double limInfe
     jsonData["rectangulos"] = json::array();
 
     int totalRectangulos = std::round((limSuperior - limInferior) / deltaX);
-    for (int i = 1; i <= totalRectangulos; ++i) {
+    for (int i = 0; i <= totalRectangulos; ++i) {
         double xi = limInferior + i * deltaX;
         double altura = f(xi);
 
