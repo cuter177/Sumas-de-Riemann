@@ -2,13 +2,8 @@
 26	1517	7820963555083771	CMakeFiles/Documents.dir/cutintegral.cpp.obj	ac8799f8e697bf4a
 35	3130	7831555403400946	CMakeFiles/Documents.dir/Dominio.cpp.obj	c0e4a15829ab74d3
 45	1121	7820963555279543	CMakeFiles/Documents.dir/toPostFix.cpp.obj	7e91653fc6a5f332
-3046	3362	7831548768803167	C:/Users/Pop90/Documents/Riemann_2.0/bin/Debug/Documents.exe	6343693a4cbd45b7
+5371	5754	7831597976795929	C:/Users/Pop90/Documents/Riemann_2.0/bin/Debug/Documents.exe	20c3ce37da0804bd
 51	1476	7820963555341059	CMakeFiles/Documents.dir/Utils.cpp.obj	675d1f859571725f
 39	1894	7820963555219591	CMakeFiles/Documents.dir/ExpressionParser.cpp.obj	4f67b513a7abf989
-27	3177	7831555403327833	CMakeFiles/Documents.dir/main.cpp.obj	299aea664329fcbf
-7	4668	7831556216151633	CMakeFiles/Documents.dir/PythonManager.cpp.obj	d1dd12b82b6a1fb4
-4669	4961	7831556262764768	C:/Users/Pop90/Documents/Riemann_2.0/bin/Debug/Documents.exe	20c3ce37da0804bd
-12	4635	7831594867532792	CMakeFiles/Documents.dir/PythonManager.cpp.obj	d1dd12b82b6a1fb4
-4636	4951	7831594913766222	C:/Users/Pop90/Documents/Riemann_2.0/bin/Debug/Documents.exe	20c3ce37da0804bd
 13	5370	7831597923216381	CMakeFiles/Documents.dir/PythonManager.cpp.obj	d1dd12b82b6a1fb4
-5371	5754	7831597976795929	C:/Users/Pop90/Documents/Riemann_2.0/bin/Debug/Documents.exe	20c3ce37da0804bd
+27	3177	7831555403327833	CMakeFiles/Documents.dir/main.cpp.obj	299aea664329fcbf
