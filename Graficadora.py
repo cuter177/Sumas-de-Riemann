@@ -21,19 +21,28 @@ pan_x, pan_y = 0.0, 0.0
 mouse_pressed = False
 mouse_x, mouse_y = 0, 0
 
+<<<<<<< HEAD
 # Obtener la carpeta raíz del proyecto (donde está este script)
 RAIZ_DIR = os.path.dirname(os.path.abspath(__file__))
 DATOS_DIR = os.path.join(RAIZ_DIR, "datos")
 
 def guardar_parametros():
     """Guarda los parámetros de zoom y pan en un archivo JSON."""
+=======
+def guardar_parametros():
+    """ Guarda los parámetros de zoom y pan en un archivo JSON. """
+>>>>>>> 1f47153fc388540a12b13737798de23ae6ed20ee
     parametros = {
         "zoom": zoom,
         "pan_x": pan_x,
         "pan_y": pan_y
     }
+<<<<<<< HEAD
     ruta_parametros = os.path.join(DATOS_DIR, "Parametros.json")
     with open(ruta_parametros, "w") as file:
+=======
+    with open("C:\\Users\\Pop90\\Documents\\Riemann_4.1\\datos\\Parametros.json", "w") as file:
+>>>>>>> 1f47153fc388540a12b13737798de23ae6ed20ee
         json.dump(parametros, file)
 
 def cargar_rectangulos_json():
@@ -55,14 +64,23 @@ def cargar_rectangulos_json():
         print(f"Error al cargar 'Rectangulo.json': {e}")
 
 def cargar_datos_funcion():
+<<<<<<< HEAD
     """Carga la lista de puntos de la función desde Datos.json"""
     global puntos
     ruta_datos = os.path.join(DATOS_DIR, "Datos.json")
+=======
+    global puntos
+    file_path = r'C:\Users\Pop90\Documents\Riemann_4.1\datos\Datos.json'
+>>>>>>> 1f47153fc388540a12b13737798de23ae6ed20ee
     max_attempts = 5
     attempt = 0
     while attempt < max_attempts:
         try:
+<<<<<<< HEAD
             with open(ruta_datos, 'r') as file:
+=======
+            with open(file_path, 'r') as file:
+>>>>>>> 1f47153fc388540a12b13737798de23ae6ed20ee
                 content = file.read().strip()
                 if not content:
                     raise ValueError("Empty file")
@@ -72,8 +90,15 @@ def cargar_datos_funcion():
                 puntos = [(p["x"], p["y"]) for p in datos["puntos"]]
                 return
         except Exception as e:
+<<<<<<< HEAD
             time.sleep(0.1)
             attempt += 1
+=======
+            print(f"Error loading Datos.json: {e}")
+            time.sleep(0.1)
+            attempt += 1
+    print("Failed to load Datos.json after multiple attempts")
+>>>>>>> 1f47153fc388540a12b13737798de23ae6ed20ee
 
 def actualizar_datos_funcion():
     while True:
@@ -213,11 +238,19 @@ def keyboard(key, x, y):
 usuario_interactuo = False
 
 def mouse_motion(x, y):
+<<<<<<< HEAD
     global pan_x, pan_y, mouse_x, mouse_y, usuario_interactuo, zoom
     if mouse_pressed:
         # Ajustar el factor divisor para que tenga en cuenta el zoom
         dx = (x - mouse_x) / (0.5 * zoom)
         dy = (mouse_y - y) / (0.5 * zoom)
+=======
+    global pan_x, pan_y, mouse_x, mouse_y, usuario_interactuo
+    if mouse_pressed:
+        dx = (x - mouse_x) / 5.0
+        dy = (mouse_y - y) / 5.0
+        # Solo actualiza si el movimiento es mayor a un umbral
+>>>>>>> 1f47153fc388540a12b13737798de23ae6ed20ee
         if abs(dx) > 0.1 or abs(dy) > 0.1:
             pan_x += dx
             pan_y += dy
@@ -226,13 +259,21 @@ def mouse_motion(x, y):
         mouse_x, mouse_y = x, y
 
 def mouse_click(button, state, x, y):
+<<<<<<< HEAD
     global mouse_pressed, mouse_x, mouse_y
+=======
+    global mouse_pressed
+>>>>>>> 1f47153fc388540a12b13737798de23ae6ed20ee
     if button == GLUT_LEFT_BUTTON:
         if state == GLUT_DOWN:
             mouse_pressed = True
             mouse_x, mouse_y = x, y
         elif state == GLUT_UP:
             mouse_pressed = False
+<<<<<<< HEAD
+=======
+            # Solo guardar si el usuario ha interactuado de verdad
+>>>>>>> 1f47153fc388540a12b13737798de23ae6ed20ee
             if usuario_interactuo:
                 guardar_parametros()
 
