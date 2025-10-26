@@ -3,7 +3,7 @@
 *.vcxproj*
 .idea/
 *.iml
-cmake-build-*/
+cmake-build-debug/*
 
 # Archivos temporales de Windows
 Thumbs.db

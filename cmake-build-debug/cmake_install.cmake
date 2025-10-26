@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Install script for directory: C:/Users/Pop90/Documents/Riemann_2.0
+=======
+# Install script for directory: C:/Users/Pop90/Documents/Riemann_4.1
+>>>>>>> 89847a6 (Se soluciono el problema de x^2)
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -52,6 +56,10 @@ endif()
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
+<<<<<<< HEAD
   file(WRITE "C:/Users/Pop90/Documents/Riemann_2.0/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+=======
+  file(WRITE "C:/Users/Pop90/Documents/Riemann_4.1/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+>>>>>>> 89847a6 (Se soluciono el problema de x^2)
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()
