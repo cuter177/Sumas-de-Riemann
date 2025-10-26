@@ -21,14 +21,19 @@ pan_x, pan_y = 0.0, 0.0
 mouse_pressed = False
 mouse_x, mouse_y = 0, 0
 
+# Obtener la carpeta raíz del proyecto (donde está este script)
+RAIZ_DIR = os.path.dirname(os.path.abspath(__file__))
+DATOS_DIR = os.path.join(RAIZ_DIR, "datos")
+
 def guardar_parametros():
-    """ Guarda los parámetros de zoom y pan en un archivo JSON. """
+    """Guarda los parámetros de zoom y pan en un archivo JSON."""
     parametros = {
         "zoom": zoom,
         "pan_x": pan_x,
         "pan_y": pan_y
     }
-    with open("C:\\Users\\Pop90\\Documents\\Riemann_4.1\\datos\\Parametros.json", "w") as file:
+    ruta_parametros = os.path.join(DATOS_DIR, "Parametros.json")
+    with open(ruta_parametros, "w") as file:
         json.dump(parametros, file)
 
 def cargar_rectangulos_json():
@@ -37,8 +42,9 @@ def cargar_rectangulos_json():
     Se espera que cada rectángulo tenga una clave "vertices" con 4 subarreglos.
     """
     global rectangulos
+    ruta_rectangulos = os.path.join(DATOS_DIR, "Rectangulo.json")
     try:
-        with open("C:\\Users\\Pop90\\Documents\\Riemann_4.1\\datos/Rectangulo.json", "r") as f:
+        with open(ruta_rectangulos, "r") as f:
             data = json.load(f)
             for rect in data["rectangulos"]:
                 vertices = rect.get("vertices", None)
@@ -49,13 +55,14 @@ def cargar_rectangulos_json():
         print(f"Error al cargar 'Rectangulo.json': {e}")
 
 def cargar_datos_funcion():
+    """Carga la lista de puntos de la función desde Datos.json"""
     global puntos
-    file_path = r'C:\Users\Pop90\Documents\Riemann_4.1\datos\Datos.json'
+    ruta_datos = os.path.join(DATOS_DIR, "Datos.json")
     max_attempts = 5
     attempt = 0
     while attempt < max_attempts:
         try:
-            with open(file_path, 'r') as file:
+            with open(ruta_datos, 'r') as file:
                 content = file.read().strip()
                 if not content:
                     raise ValueError("Empty file")
@@ -65,10 +72,8 @@ def cargar_datos_funcion():
                 puntos = [(p["x"], p["y"]) for p in datos["puntos"]]
                 return
         except Exception as e:
-            print(f"Error loading Datos.json: {e}")
             time.sleep(0.1)
             attempt += 1
-    print("Failed to load Datos.json after multiple attempts")
 
 def actualizar_datos_funcion():
     while True:

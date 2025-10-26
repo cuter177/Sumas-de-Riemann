@@ -28,7 +28,10 @@ add_executable(Documents main.cpp
         toPostFix.cpp
         toPostFix.h
         Utils.cpp
-        Utils.h)
+        Utils.h
+        PythonManager.cpp
+        PythonManager.h
+        )
 
 # Enlazar librerías SOLO DESPUÉS de definir el ejecutable
 #target_link_libraries(Riemann_3_04 nlohmann_json::nlohmann_json) # Enlaza nlohmann_json

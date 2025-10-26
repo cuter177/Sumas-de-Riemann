@@ -89,13 +89,18 @@ void Dominio::calcularDominio() {
 
 // Guarda los puntos en un archivo JSON en tiempo real
 void Dominio::guardarEnJsonTiempoReal(const std::string& filename, double start, double end, double zoom, double panx, double pany) {
-    fs::path rutaCompleta = fs::path(R"(C:\Users\Pop90\Documents\Riemann_4.1\datos)") / filename;
+    // Ruta fija al proyecto (dos niveles arriba de este archivo fuente)
+    fs::path rutaProyecto = fs::path(__FILE__).parent_path(); // si Dominio.cpp está en la raíz del proyecto
+    fs::path rutaCompleta = rutaProyecto / "datos" / filename;
+
+
+
     if (!fs::exists(rutaCompleta.parent_path()))
         fs::create_directories(rutaCompleta.parent_path());
 
     std::ofstream archivo(rutaCompleta);
     if (!archivo) {
-        std::cerr << "Error opening file: " << rutaCompleta.string() << std::endl;
+        //std::cerr << "Error opening file: " << rutaCompleta.string() << std::endl;
         return;
     }
 
@@ -116,27 +121,27 @@ void Dominio::guardarEnJsonTiempoReal(const std::string& filename, double start,
     archivo.flush();
     // Commit call removed.
     archivo.close();
-    std::cout << "Archivo JSON guardado en: " << rutaCompleta.string() << std::endl;
+    //std::cout << "Archivo guardado en: " << fs::absolute(rutaCompleta).string() << std::endl;
+
 }
 
 void Dominio::guardarRectangulosJson(const std::string& filename, double limInferior, double limSuperior, double deltaX) {
     json jsonData;
     jsonData["rectangulos"] = json::array();
 
-    const double epsilon = 1e-9;
-    const int totalPasos = static_cast<int>((limSuperior - limInferior) / deltaX + epsilon);
+    const int totalRectangulos = static_cast<int>((limSuperior - limInferior) / deltaX);
 
-    for (int i = 0; i <= totalPasos; ++i) {
-        double x = limInferior + i * deltaX;
-        double altura = f(x);
+    for (int i = 0; i < totalRectangulos; ++i) {
+        double xi = limInferior + i * deltaX;
+        double altura = f(xi);
 
         if (std::isnan(altura) || std::isinf(altura))
             continue;
 
         // Calcular los vértices para el rectángulo:
         // Suponiendo que la base está en y=0 y la altura es 'altura'
-        double xIzq = x;            // coordenada x izquierda
-        double xDer = x + deltaX;     // coordenada x derecha
+        double xIzq = xi;            // coordenada x izquierda
+        double xDer = xi + deltaX;     // coordenada x derecha
         double yInf = 0.0;            // coordenada y inferior
         double ySup = altura;         // coordenada y superior
 
@@ -153,14 +158,20 @@ void Dominio::guardarRectangulosJson(const std::string& filename, double limInfe
         jsonData["rectangulos"].push_back(rectangulo);
     }
 
-    fs::path rutaCompleta = fs::path(R"(C:\Users\Pop90\Documents\Riemann_4.1\datos)") / filename;
+    // Ruta fija al proyecto (dos niveles arriba de este archivo fuente)
+    fs::path rutaProyecto = fs::path(__FILE__).parent_path(); // si Dominio.cpp está en la raíz del proyecto
+    fs::path rutaCompleta = rutaProyecto / "datos" / filename;
+
+
+    if (!fs::exists(rutaCompleta.parent_path()))
+        fs::create_directories(rutaCompleta.parent_path());
 
     std::ofstream archivo(rutaCompleta);
     if (archivo.is_open()) {
         archivo << jsonData.dump(4);
         archivo.close();
-        std::cout << "JSON generado en: " << rutaCompleta.string() << std::endl;
+       // std::cout << "JSON generado en: " << rutaCompleta.string() << std::endl;
     } else {
-        std::cerr << "Error al abrir el archivo: " << rutaCompleta << std::endl;
+        //std::cerr << "Error al abrir el archivo: " << rutaCompleta << std::endl;
     }
 }
