@@ -89,26 +89,18 @@ void Dominio::calcularDominio() {
 
 // Guarda los puntos en un archivo JSON en tiempo real
 void Dominio::guardarEnJsonTiempoReal(const std::string& filename, double start, double end, double zoom, double panx, double pany) {
-<<<<<<< HEAD
     // Ruta fija al proyecto (dos niveles arriba de este archivo fuente)
     fs::path rutaProyecto = fs::path(__FILE__).parent_path(); // si Dominio.cpp está en la raíz del proyecto
     fs::path rutaCompleta = rutaProyecto / "datos" / filename;
 
 
 
-=======
-    fs::path rutaCompleta = fs::path(R"(C:\Users\Pop90\Documents\Riemann_4.1\datos)") / filename;
->>>>>>> 1f47153fc388540a12b13737798de23ae6ed20ee
     if (!fs::exists(rutaCompleta.parent_path()))
         fs::create_directories(rutaCompleta.parent_path());
 
     std::ofstream archivo(rutaCompleta);
     if (!archivo) {
-<<<<<<< HEAD
         //std::cerr << "Error opening file: " << rutaCompleta.string() << std::endl;
-=======
-        std::cerr << "Error opening file: " << rutaCompleta.string() << std::endl;
->>>>>>> 1f47153fc388540a12b13737798de23ae6ed20ee
         return;
     }
 
@@ -129,12 +121,8 @@ void Dominio::guardarEnJsonTiempoReal(const std::string& filename, double start,
     archivo.flush();
     // Commit call removed.
     archivo.close();
-<<<<<<< HEAD
     //std::cout << "Archivo guardado en: " << fs::absolute(rutaCompleta).string() << std::endl;
 
-=======
-    std::cout << "Archivo JSON guardado en: " << rutaCompleta.string() << std::endl;
->>>>>>> 1f47153fc388540a12b13737798de23ae6ed20ee
 }
 
 void Dominio::guardarRectangulosJson(const std::string& filename, double limInferior, double limSuperior, double deltaX) {
@@ -170,7 +158,6 @@ void Dominio::guardarRectangulosJson(const std::string& filename, double limInfe
         jsonData["rectangulos"].push_back(rectangulo);
     }
 
-<<<<<<< HEAD
     // Ruta fija al proyecto (dos niveles arriba de este archivo fuente)
     fs::path rutaProyecto = fs::path(__FILE__).parent_path(); // si Dominio.cpp está en la raíz del proyecto
     fs::path rutaCompleta = rutaProyecto / "datos" / filename;
@@ -178,9 +165,6 @@ void Dominio::guardarRectangulosJson(const std::string& filename, double limInfe
 
     if (!fs::exists(rutaCompleta.parent_path()))
         fs::create_directories(rutaCompleta.parent_path());
-=======
-    fs::path rutaCompleta = fs::path(R"(C:\Users\Pop90\Documents\Riemann_4.1\datos)") / filename;
->>>>>>> 1f47153fc388540a12b13737798de23ae6ed20ee
 
     std::ofstream archivo(rutaCompleta);
     if (archivo.is_open()) {
