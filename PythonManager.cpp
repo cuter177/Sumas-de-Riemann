@@ -1,8 +1,9 @@
 #include "PythonManager.h"
 #include <windows.h>
 
-std::atomic<bool> pythonScriptRunning{false};
+#include "JsonIO.h"
 
+std::atomic<bool> pythonScriptRunning{false};
 PythonManager::PythonManager() {}
 
 std::string PythonManager::obtenerDirectorioBase() {

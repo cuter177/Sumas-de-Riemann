@@ -22,7 +22,7 @@ public:
     // Métodos públicos
     void calcularDominio();
     void guardarEnJson(const std::string& filename);
-    void guardarRectangulosJson(const std::string &filename, double limInferior, double limSuperior, double deltaX);
+    void guardarRectangulosJson(const std::string &filename, double limInferior, double limSuperior, double deltaX, int totalRectangulos);
     void guardarEnJsonTiempoReal(const std::string& filename, double start, double end, double zoom, double panx, double pany);
 };
 

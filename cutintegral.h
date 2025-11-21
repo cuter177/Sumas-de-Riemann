@@ -22,6 +22,8 @@ public:
     const std::string getLimS_mostrar();
     const std::string getDeltaX();
 
+    int getN() const;
+
     //principal
     void cortar(std::string);
 
@@ -41,6 +43,7 @@ private:
     std::string limI_mostrar;
     std::string limS_mostrar;
     std::string deltaX;
+    int n;
 
 
 };

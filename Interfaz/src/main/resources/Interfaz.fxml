@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.web.WebView?>
+
+<AnchorPane prefHeight="495.0" prefWidth="602.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.InterfazController">
+   <children>
+      <Label layoutX="199.0" layoutY="14.0" text="Sumas de Riemann">
+         <font>
+            <Font size="24.0" />
+         </font>
+      </Label>
+      <TextField fx:id="txtFuncion" layoutX="14.0" layoutY="60.0" prefHeight="26.0" prefWidth="574.0" promptText="Ingresar función " />
+      <TextField fx:id="txtLi" layoutX="14.0" layoutY="95.0" promptText="Límite inferior" />
+      <TextField fx:id="txtLs" layoutX="220.0" layoutY="95.0" promptText="Límite superior" />
+      <TextField fx:id="txtN" layoutX="438.0" layoutY="95.0" promptText="Número de rectángulos" />
+      <Button layoutX="244.0" layoutY="363.0" mnemonicParsing="false" onAction="#guardarJson" prefHeight="35.0" prefWidth="101.0" text="Calcular" />
+      <Label fx:id="lblSuma" layoutX="12.0" layoutY="409.0" prefHeight="20.0" prefWidth="574.0">
+         <font>
+            <Font size="14.0" />
+         </font></Label>
+      <Label fx:id="lblDeltax" layoutX="12.0" layoutY="440.0" prefHeight="20.0" prefWidth="574.0">
+         <font>
+            <Font size="14.0" />
+         </font></Label>
+      <AnchorPane fx:id="visorLatex" layoutX="145.0" layoutY="148.0" prefHeight="200.0" prefWidth="300.0">
+
+         <children>
+            <WebView fx:id="webViewLatex" prefHeight="200.0" prefWidth="300.0" />
+         </children>
+
+      </AnchorPane>
+   </children>
+</AnchorPane>

@@ -8,6 +8,7 @@
 #include "ExpressionParser.h"
 #include "toPostFix.h"
 #include "Utils.h"
+#include "cutIntegral.h"
 #include <nlohmann/json.hpp>
 #ifdef _WIN32
   #include <io.h>
@@ -125,12 +126,11 @@ void Dominio::guardarEnJsonTiempoReal(const std::string& filename, double start,
 
 }
 
-void Dominio::guardarRectangulosJson(const std::string& filename, double limInferior, double limSuperior, double deltaX) {
+void Dominio::guardarRectangulosJson(const std::string& filename, double limInferior, double limSuperior, double deltaX, int totalRectangulos) {
     json jsonData;
     jsonData["rectangulos"] = json::array();
 
-    int totalRectangulos = std::round((limSuperior - limInferior) / deltaX);
-    for (int i = 0; i <= totalRectangulos; ++i) {
+    for (int i = 0; i < totalRectangulos; ++i) {
         double xi = limInferior + i * deltaX;
         double altura = f(xi);
 

@@ -18,6 +18,8 @@ add_executable(Documents
         toPostFix.cpp
         Utils.cpp
         PythonManager.cpp
+        JsonIO.cpp
+        JavaManager.cpp
 )
 
 # Si necesitas librerías adicionales en Windows

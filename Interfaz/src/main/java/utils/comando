@@ -1,0 +1,1 @@
+java --module-path "C:\Users\Pop90\Documents\Riemann_2.0\javaFx\lib" ^ --add-modules javafx.controls,javafx.fxml,javafx.web ^ -cp "C:\Users\Pop90\Documents\Riemann_2.0\Interfaz\target\Interfaz-Riemann.jar;C:\Users\Pop90\Documents\Riemann_2.0\Interfaz\target\dependency\*" ^ aplication.App

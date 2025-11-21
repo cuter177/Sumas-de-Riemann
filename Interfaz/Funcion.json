@@ -1,0 +1,6 @@
+{
+  "limiteInferior": "0",
+  "numeroRectangulos": 500,
+  "funcion": "x^2",
+  "limiteSuperior": "1"
+}

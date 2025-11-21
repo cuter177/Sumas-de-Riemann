@@ -48,8 +48,13 @@ using namespace std;
     void cortarIntegral::setDeltaX(std::string valor) {
         double ls = stod(getLimS());
         double li = stod(getLimI());
-        double value = stod(valor);
-        deltaX = to_string((ls-li)/value);
+        double tempN = stod(valor); // convertir valor a double
+
+        if (tempN <= 0) {
+            throw std::runtime_error("El número de rectángulos debe ser mayor que 0");
+        }
+        n = static_cast<int>(tempN); // ahora sí lo guardas como entero;
+        deltaX = std::to_string((ls - li) / tempN);
     }
 
 
@@ -72,6 +77,10 @@ using namespace std;
     const string cortarIntegral::getDeltaX() {
         return deltaX;
     }
+    int cortarIntegral::getN() const {
+        return n;
+    }
+
 
     void cortarIntegral::cortar(string input) {
         string cad = input;
