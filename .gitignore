@@ -40,3 +40,7 @@ Interfaz/target/
 
 # Datos de interfaz generados en runtime
 Interfaz/data/
+
+# Java/JavaFX runtime
+java/
+javaFx/
