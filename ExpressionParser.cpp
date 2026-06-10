@@ -3,7 +3,7 @@
 #include<iostream>
 #include<stdexcept>
 #include <math.h>
-//#include <cmath>
+#include <cmath>
 
 Expression_Parser::Expression_Parser(const std::vector<std::string>& input)
 {
@@ -27,9 +27,9 @@ std::shared_ptr<node> Expression_Parser::toTree()
                 tokens[i] == "cosh" ||
                 tokens[i] == "tanh" ||
                 tokens[i] == "sinh" ||
-                tokens[i] == "acos" ||
-                tokens[i] == "atan" ||
-                tokens[i] == "asin" ||
+                tokens[i] == "arccos" ||
+                tokens[i] == "arctan" ||
+                tokens[i] == "arcsin" ||
                 tokens[i] == "ln" ||
                 tokens[i] == "abs" ||
                 tokens[i] == "E" ||
@@ -37,6 +37,7 @@ std::shared_ptr<node> Expression_Parser::toTree()
                 tokens[i] == "c" ||
                 tokens[i] == "cos" ||
                 tokens[i] == "tan" ||
+                tokens[i] == "sen" ||
                 tokens[i] == "sin"))
 
                 expression_tree.emplace_back(new node(tokens[i]));//add the token to the expression tree
@@ -45,12 +46,13 @@ std::shared_ptr<node> Expression_Parser::toTree()
                 if (tokens[i] == "cos" ||//if the token is a function
                     tokens[i] == "tan" ||
                     tokens[i] == "sin" ||
+                    tokens[i] == "sen" ||
                     tokens[i] == "cosh" ||
                     tokens[i] == "tanh" ||
                     tokens[i] == "sinh" ||
-                    tokens[i] == "acos" ||
-                    tokens[i] == "atan" ||
-                    tokens[i] == "asin" ||
+                    tokens[i] == "arccos" ||
+                    tokens[i] == "arctan" ||
+                    tokens[i] == "arcsin" ||
                     tokens[i] == "r" ||
                     tokens[i] == "c" ||
                     tokens[i] == "ln" ||
@@ -148,6 +150,8 @@ long double Expression_Parser::evaluateExpressionTree(const std::shared_ptr<node
         return cos(evaluateExpressionTree(root->right));
     if (root->data == "sin")
         return sin(evaluateExpressionTree(root->right));
+    if (root->data == "sen")
+        return sin(evaluateExpressionTree(root->right));
     if (root->data == "tan")
         return tan(evaluateExpressionTree(root->right));
 
@@ -158,17 +162,16 @@ long double Expression_Parser::evaluateExpressionTree(const std::shared_ptr<node
     if (root->data == "sinh")
         return sinh(evaluateExpressionTree(root->right));
 
-    if (root->data == "atan")
+    if (root->data == "arctan")
         return atan(evaluateExpressionTree(root->right));
-    if (root->data == "acos")
+    if (root->data == "arccos")
         return acos(evaluateExpressionTree(root->right));
-    if (root->data == "asin")
+    if (root->data == "arcsin")
         return asin(evaluateExpressionTree(root->right));
-
     if (root->data == "ln")
         return log(evaluateExpressionTree(root->right));
     if (root->data == "abs")
-        return abs(evaluateExpressionTree(root->right));
+        return fabsl(evaluateExpressionTree(root->right));
     if (root->data == "E")
         return exp(evaluateExpressionTree(root->right));
     if (root->data == "r")
@@ -189,7 +192,8 @@ long double Expression_Parser::evaluateExpressionTree(const std::shared_ptr<node
     }
     catch (std::invalid_argument)
     {
-        std::cout << "ERROR : INVALID ARGUMENT" << std::endl;
+        Error = true;
+        //std::cout << "ERROR : INVALID ARGUMENT" << std::endl;
         return 0;
     }
     //if not a function or operator then return the data in the node

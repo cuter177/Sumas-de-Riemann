@@ -11,3 +11,32 @@ Thumbs.db
 
 # Archivos de datos generados
 datos/*.json
+
+# Archivos de Visual Studio / CLion / IDE
+*.sln
+*.vcxproj*
+.idea/
+*.iml
+cmake-build-debug/*
+
+# Archivos temporales de Windows
+Thumbs.db
+.DS_Store
+
+# Archivos de datos generados
+datos/*.json
+
+# Python embebido
+python-3.13.9-embed-amd64/
+
+# Binarios compilados
+bin/
+*.exe
+*.o
+*.obj
+
+# Build de Java
+Interfaz/target/
+
+# Datos de interfaz generados en runtime
+Interfaz/data/

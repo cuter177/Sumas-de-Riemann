@@ -1,29 +1,39 @@
-#ifndef DOMINIO_H
-#define DOMINIO_H
-
+#pragma once
+// Dominio.h
 #include <string>
 #include <vector>
 #include <utility>
+#include <functional>
 
 class Dominio {
-private:
-    std::string expresion;
-    double deltaX;
-
-    // Métodos privados
-    double f(double x);
-    double derivada(double x, double h = 1e-5);
-    std::vector<std::pair<double, double>> detectarIntervalosContinuos(double start, double end);
-
 public:
-    // Constructor
     Dominio(std::string exp, double dx);
 
-    // Métodos públicos
-    void calcularDominio();
-    void guardarEnJson(const std::string& filename);
-    void guardarRectangulosJson(const std::string &filename, double limInferior, double limSuperior, double deltaX, int totalRectangulos);
-    void guardarEnJsonTiempoReal(const std::string& filename, double start, double end, double zoom, double panx, double pany);
-};
+    double f(double x);
+    double derivada(double x, double h = 1e-5);
 
-#endif // DOMINIO_H // DOMINIO_H
+    std::vector<std::pair<double,double>> detectarIntervalosContinuos(double start, double end);
+    void calcularDominio();
+
+    // Muestreo adaptativo (MVT) + paralelismo → devuelve pares (x, y)
+    std::vector<std::pair<double,double>> calcularPuntosAdaptativos(
+        double start, double end,
+        double tolerancia     = 0.01,
+        int    profundidadMax = 12);
+
+    // Escribe Datos.json con muestreo adaptativo
+    void guardarEnJsonTiempoReal(
+        const std::string& filename,
+        double start, double end,
+        double zoom = 1.0, double panx = 0.0, double pany = 0.0);
+
+    // Compatibilidad (no se usa en el flujo principal)
+    void guardarRectangulosJson(
+        const std::string& filename,
+        double limInferior, double limSuperior,
+        double deltaX, int totalRectangulos);
+
+private:
+    std::string expresion;
+    double      deltaX;
+};

@@ -1,9 +1,13 @@
-#include "PythonManager.h"
+// PythonManager.cpp
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
 #include <windows.h>
 
+#include "PythonManager.h"
 #include "JsonIO.h"
 
 std::atomic<bool> pythonScriptRunning{false};
+
 PythonManager::PythonManager() {}
 
 std::string PythonManager::obtenerDirectorioBase() {
@@ -13,99 +17,85 @@ std::string PythonManager::obtenerDirectorioBase() {
 }
 
 std::string PythonManager::obtenerDirectorioRaiz() {
-    fs::path baseDir = obtenerDirectorioBase();
-    while (!baseDir.empty() && baseDir.filename() != "Riemann_2.0") {
-        baseDir = baseDir.parent_path();
-    }
-    return baseDir.string();
+    fs::path dir = obtenerDirectorioBase();
+    while (!dir.empty() && dir.filename() != "Riemann_2.0")
+        dir = dir.parent_path();
+    return dir.string();
 }
 
-bool PythonManager::fileExists(const std::string &path) {
-    return fs::exists(path);
+bool PythonManager::fileExists(const std::string& p) {
+    return fs::exists(p);
 }
 
-void PythonManager::leerParametros(double &zoom, double &pan_x, double &pan_y) {
-    std::string raizDir = obtenerDirectorioRaiz();
-    std::string parametrosPath = (fs::path(raizDir) / "datos" / "Parametros.json").string();
-    int retryCount = 0;
-    while (!fileExists(parametrosPath) && retryCount < 5) {
+void PythonManager::leerParametros(double& zoom, double& pan_x, double& pan_y) {
+    std::string raiz = obtenerDirectorioRaiz();
+    std::string ruta = (fs::path(raiz) / "datos" / "Parametros.json").string();
+    for (int i = 0; i < 5 && !fileExists(ruta); ++i)
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        retryCount++;
-    }
-    std::ifstream archivo(parametrosPath);
-    if (archivo.is_open()) {
-        json parametros;
-        archivo >> parametros;
-        zoom = parametros["zoom"];
-        pan_x = parametros["pan_x"];
-        pan_y = parametros["pan_y"];
-    }
+
+    std::ifstream arch(ruta);
+    if (!arch.is_open()) return;
+    json j; arch >> j;
+    zoom  = j["zoom"];
+    pan_x = j["pan_x"];
+    pan_y = j["pan_y"];
 }
 
 void PythonManager::ejecutarScriptPython() {
-    // Obtener el directorio raíz del proyecto
-    std::string raizDir = obtenerDirectorioRaiz();
-
-    // Cambiar el directorio de trabajo a la raíz del proyecto
-    if (!SetCurrentDirectoryA(raizDir.c_str())) {
-        DWORD err = GetLastError();
-        std::cerr << "Error al cambiar el directorio de trabajo: " << err << std::endl;
+    std::string raiz = obtenerDirectorioRaiz();
+    if (!SetCurrentDirectoryA(raiz.c_str())) {
+        std::cerr << "Error SetCurrentDirectory: " << GetLastError() << "\n";
+        pythonScriptRunning = false;
         return;
     }
 
-    // Rutas relativas desde la raíz del proyecto
-    std::wstring pythonPath = L".\\python-3.13.9-embed-amd64\\python.exe";
-    std::wstring scriptPath = L".\\Graficadora.py";
-
-    // Construir la línea de comando con comillas
-    std::wstring commandLine = L"\"" + pythonPath + L"\" \"" + scriptPath + L"\"";
-    std::wcout << L"Ejecutando comando: " << commandLine << std::endl;
-
-    // Convertir a buffer para CreateProcessW
-    std::vector<wchar_t> cmdBuffer(commandLine.begin(), commandLine.end());
-    cmdBuffer.push_back(0);
-
     STARTUPINFOW si{};
-    si.cb = sizeof(si);
+    si.cb        = sizeof(si);
+    si.dwFlags   = STARTF_USESTDHANDLES;
+    si.hStdInput  = GetStdHandle(STD_INPUT_HANDLE);
+    si.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+    si.hStdError  = GetStdHandle(STD_ERROR_HANDLE);
+
     PROCESS_INFORMATION pi{};
 
-    // Crear el proceso
-    if (!CreateProcessW(
-        nullptr,
-        cmdBuffer.data(),
-        nullptr,
-        nullptr,
-        FALSE,
-        0,
-        nullptr,
-        nullptr,
-        &si,
-        &pi))
+    std::wstring cmd =
+        L"\".\\python-3.13.9-embed-amd64\\python.exe\" \".\\Graficadora.py\"";
+    std::vector<wchar_t> buf(cmd.begin(), cmd.end());
+    buf.push_back(0);
+
+    pythonScriptRunning = true;
+
+    if (!CreateProcessW(nullptr, buf.data(),
+                        nullptr, nullptr, TRUE, 0,
+                        nullptr, nullptr, &si, &pi))
     {
-        DWORD err = GetLastError();
-        std::wcerr << L"Error al ejecutar CreateProcessW: " << err << std::endl;
-    } else {
-        pythonScriptRunning = true;
-        // Esperar a que termine el script
-        WaitForSingleObject(pi.hProcess, INFINITE);
+        std::cerr << "Error CreateProcessW: " << GetLastError() << "\n";
         pythonScriptRunning = false;
-        CloseHandle(pi.hProcess);
-        CloseHandle(pi.hThread);
+        return;
     }
+
+    WaitForSingleObject(pi.hProcess, INFINITE);
+    pythonScriptRunning = false;
+    CloseHandle(pi.hProcess);
+    CloseHandle(pi.hThread);
 }
 
-void PythonManager::ejecutarScriptPythonEnThread(Dominio &dominio, double zoom, double pan_x, double pan_y) {
+void PythonManager::ejecutarScriptPythonEnThread(
+    Dominio& dominio,
+    double zoom, double pan_x, double pan_y)
+{
     std::thread pythonThread(&PythonManager::ejecutarScriptPython, this);
+
+    // Esperar a que Python inicialice y escriba Parametros.json
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
     do {
         leerParametros(zoom, pan_x, pan_y);
-        double visibleX_min = (-100.0 / zoom) - (pan_x / zoom);
-        double visibleX_max = (100.0 / zoom) - (pan_x / zoom);
-        dominio.guardarEnJsonTiempoReal("Datos.json", visibleX_min, visibleX_max, zoom, pan_x, pan_y);
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        double xMin = (-100.0 / zoom) - (pan_x / zoom);
+        double xMax = ( 100.0 / zoom) - (pan_x / zoom);
+        dominio.guardarEnJsonTiempoReal("Datos.json", xMin, xMax, zoom, pan_x, pan_y);
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
     } while (pythonScriptRunning);
 
-    if (pythonThread.joinable()) {
-        pythonThread.join();
-    }
+    if (pythonThread.joinable()) pythonThread.join();
 }

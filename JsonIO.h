@@ -21,6 +21,7 @@ public:
     static void escribirResultado(
         double resultado,
         double deltaX,
+        bool ok,
         const std::string& ruta
     );
 

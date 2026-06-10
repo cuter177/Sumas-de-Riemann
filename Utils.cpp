@@ -1,6 +1,5 @@
 #include"Utils.h"
-#include"sustx.h"
-#include "cutIntegral.h"
+
 
 #include <string>
 
@@ -327,6 +326,8 @@ const int getOperatorPrecedance(const std::string& givenOperator)
         return 5;
     if (givenOperator == "sin")
         return 5;
+    if (givenOperator == "sen")
+        return 5;
     if (givenOperator == "cosh")
         return 5;
     if (givenOperator == "tanh")
@@ -339,11 +340,11 @@ const int getOperatorPrecedance(const std::string& givenOperator)
         return 5;
     if (givenOperator == "E")
         return 5;
-    if (givenOperator == "asin")
+    if (givenOperator == "arcsin")
         return 5;
-    if (givenOperator == "acos")
+    if (givenOperator == "arccos")
         return 5;
-    if (givenOperator == "atan")
+    if (givenOperator == "arctan")
         return 5;
     if (givenOperator == "r")
         return 5;
@@ -383,6 +384,8 @@ const bool isFunction(const std::string& givenOperator)
         return true;
     if (givenOperator == "sin")
         return true;
+    if (givenOperator == "sen")
+        return true;
     if (givenOperator == "cosh")
         return true;
     if (givenOperator == "tanh")
@@ -395,11 +398,11 @@ const bool isFunction(const std::string& givenOperator)
         return true;
     if (givenOperator == "E")
         return true;
-    if (givenOperator == "asin")
+    if (givenOperator == "arcsin")
         return true;
-    if (givenOperator == "acos")
+    if (givenOperator == "arccos")
         return true;
-    if (givenOperator == "atan")
+    if (givenOperator == "arctan")
         return true;
     if (givenOperator == "r")
         return true;

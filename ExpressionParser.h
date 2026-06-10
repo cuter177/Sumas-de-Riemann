@@ -8,7 +8,10 @@
 
 class Expression_Parser
 {
+private:
+    bool Error = false;
 public:
+    bool getError() const { return Error; }
     Expression_Parser(const std::vector<std::string>& input);
     ~Expression_Parser() = default;
 

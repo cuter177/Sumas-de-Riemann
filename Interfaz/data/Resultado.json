@@ -1,4 +1,5 @@
 {
-    "delta_x": 0.000494,
-    "resultado_integral": 1.463178702479771
+    "delta_x": 0.001551,
+    "ok": true,
+    "resultado_integral": 1.9999986306975857
 }

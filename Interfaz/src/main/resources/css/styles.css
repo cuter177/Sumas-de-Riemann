@@ -1,0 +1,133 @@
+/* ==========================================================
+   ESTILO GLOBAL - PIZARRÓN GRIS/NEGRO
+   ========================================================== */
+
+
+.root {
+    -fx-font-family: "Segoe UI", "Roboto", sans-serif;
+    -fx-background-color: linear-gradient(to bottom,
+    #1a1a1a,
+    #0f0f0f);
+    /* QUITAMOS EL PADDING QUE AGRANDABA TODO */
+    /* -fx-padding: 20;  <-- eliminado */
+}
+
+/* Textos tipo tiza gris */
+.label {
+    -fx-text-fill: #e5e5e5;
+}
+
+
+/* ==========================================================
+   TÍTULO PRINCIPAL (más sobrio)
+   ========================================================== */
+.label[text="Sumas de Riemann"] {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #f2f2f2;
+}
+
+
+/* ==========================================================
+   TEXTFIELDS – MÁS DELGADOS
+   ========================================================== */
+.text-field {
+    -fx-background-color: rgba(255,255,255,0.06);
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
+    -fx-padding: 2 6;      /* REDUCIDO — evita que el texto se corte */
+    -fx-border-color: #444;
+    -fx-border-width: 1px; /* IMPORTANTE: ANTES NO SE ESPECIFICABA */
+    -fx-font-size: 13px;
+    -fx-text-fill: #f0f0f0;
+}
+
+.text-field:focused {
+    -fx-border-color: #8fc9ff;
+}
+
+
+/* ==========================================================
+   BOTONES GLOBALES (NO aplica a minimizar/cerrar)
+   ========================================================== */
+
+/* Aseguramos que NO afecte a los botones de ventana */
+.button:not(.btn-cerrar):not(.btn-minimizar) {
+    -fx-background-color: #3c6cf4;
+    -fx-text-fill: white;
+    -fx-background-radius: 8px;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 6 14;
+}
+
+.button:not(.btn-cerrar):not(.btn-minimizar):hover {
+    -fx-background-color: #345ed1;
+}
+
+
+/* ==========================================================
+   BOTONES CERRAR Y MINIMIZAR
+   ========================================================== */
+
+.btn-cerrar, .btn-minimizar {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-background-radius: 6px;
+    -fx-padding: 2 6;       /* MÁS DELGADO PARA TU FXML */
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+}
+
+.btn-cerrar:hover {
+    -fx-background-color: #ff4b4b;
+}
+
+.btn-minimizar:hover {
+    -fx-background-color: #4b8dff;
+}
+
+
+/* ==========================================================
+   ETIQUETAS DE RESULTADOS
+   ========================================================== */
+#lblSuma, #lblDeltax {
+    -fx-background-color: transparent;
+    -fx-padding: 5 10;
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
+    -fx-border-color: transparent;   /* Nada visible */
+    -fx-text-fill: #ffffff;      /* Texto invisible hasta que tú lo muestres */
+}
+
+
+/* ==========================================================
+   PANEL DEL WEBVIEW
+   ========================================================== */
+#visorLatex {
+    -fx-background-color: rgba(255,255,255,0.04);
+    -fx-background-radius: 10px;
+    -fx-border-radius: 10px;
+    -fx-border-color: rgba(255,255,255,0.12);
+    -fx-border-width: 1;
+    -fx-padding: 5;
+}
+
+/* === Botón "Calcular" === */
+.btn-calcular {
+    -fx-background-color: #212121;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-background-radius: 8px;
+    -fx-padding: 6 12;
+    -fx-cursor: hand;
+}
+
+.btn-calcular:hover {
+    -fx-background-color: #203ac9;
+}
+
+.web-view {
+    -fx-background-color: transparent;
+}

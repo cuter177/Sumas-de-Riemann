@@ -42,11 +42,14 @@ bool JsonIO::leerFuncion(const std::string& ruta,
 }
 
 
-void JsonIO::escribirResultado(double resultado, double deltaX, const std::string& ruta)
+void JsonIO::escribirResultado(double resultado, double deltaX, bool ok, const std::string& ruta)
 {
     json j;
-    j["resultado_integral"] = resultado;
-    j["delta_x"] = deltaX;
+    j["ok"] = ok;
+    if (ok) {
+        j["resultado_integral"] = resultado;
+        j["delta_x"] = deltaX;
+    }
 
     std::ofstream file(ruta);
     if (!file) {

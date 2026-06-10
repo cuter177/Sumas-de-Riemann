@@ -6,6 +6,9 @@ import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import utils.Paths;
+import javafx.scene.paint.Color;
+import javafx.stage.StageStyle;
+
 
 public class App extends Application {
 
@@ -18,6 +21,10 @@ public class App extends Application {
 
         AnchorPane pane = (AnchorPane) loader.load();
         Scene scene = new Scene(pane);
+        scene.setFill(Color.TRANSPARENT);
+
+        // ⚠️ Y esta también: ventana transparente
+        stage.initStyle(StageStyle.TRANSPARENT);
         stage.setScene(scene);
         stage.show();
     }
