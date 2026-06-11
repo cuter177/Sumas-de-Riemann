@@ -32,13 +32,17 @@ int main() {
     JavaManager    jm;
     jm.ejecutarJarEnThread();
 
-    fs::path exePath       = fs::current_path();
-    fs::path raiz          = exePath.parent_path().parent_path();
+    fs::path exePath  = fs::current_path();
+    char exePathBuf[MAX_PATH];
+    GetModuleFileNameA(nullptr, exePathBuf, MAX_PATH);
+    fs::path raiz = fs::path(exePathBuf).parent_path(); // bin/Debug
+    if (raiz.filename() == "Debug") raiz = raiz.parent_path(); // bin
+    if (raiz.filename() == "bin")   raiz = raiz.parent_path(); // raíz
     fs::path rutaJson      = raiz / "Interfaz" / "data" / "Funcion.json";
     fs::path rutaResultado = raiz / "Interfaz" / "data" / "Resultado.json";
 
     std::string ultimo_hash = JsonIO::hashArchivo(rutaJson.string());
-    std::cout << "=== Esperando cambios en Funcion.json ===\n";
+    //std::cout << "=== Esperando cambios en Funcion.json ===\n";
 
     while (true) {
         bool ok = true;
@@ -119,7 +123,7 @@ int main() {
                 jsonData["rectangulos"].push_back(rect);
             }
 
-            fs::path rutaRects = fs::path(__FILE__).parent_path() / "datos" / "Rectangulo.json";
+            fs::path rutaRects = raiz / "datos" / "Rectangulo.json";
             fs::create_directories(rutaRects.parent_path());
             std::ofstream archivoRects(rutaRects);
             if (archivoRects) archivoRects << jsonData.dump(2);

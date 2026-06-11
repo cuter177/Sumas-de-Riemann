@@ -25,6 +25,7 @@ public:
         double pan_y = 0.0);
 
 private:
+    std::string directorioRaiz;
     void        ejecutarScriptPython();
     void        leerParametros(double& zoom, double& pan_x, double& pan_y);
     std::string obtenerDirectorioBase();

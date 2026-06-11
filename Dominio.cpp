@@ -13,7 +13,6 @@
 #include "toPostFix.h"
 #include "Utils.h"
 #include "cutIntegral.h"
-// SharedMemory.h eliminado
 
 #ifdef _WIN32
   #include <io.h>
@@ -70,7 +69,6 @@ Dominio::detectarIntervalosContinuos(double start, double end) {
 
 void Dominio::calcularDominio() {}
 
-// ── Muestreo adaptativo (Teorema del Valor Medio) ────────────────────────────
 static void muestreoAdaptativo(
     std::function<double(double)> func,
     double a, double fa,
@@ -96,7 +94,6 @@ static void muestreoAdaptativo(
     }
 }
 
-// ── Calcula puntos adaptativos en paralelo por intervalo ──────────────────────
 std::vector<std::pair<double,double>>
 Dominio::calcularPuntosAdaptativos(double start, double end,
                                    double tolerancia, int profundidadMax)
@@ -116,7 +113,6 @@ Dominio::calcularPuntosAdaptativos(double start, double end,
             double fb = f(iEnd);
             if (std::isnan(fa) || std::isinf(fa)) return local;
 
-            // Segmentos base para garantizar mínimo de puntos
             int segmentosBase = 20;
             double paso = (iEnd - iStart) / segmentosBase;
 
@@ -148,13 +144,13 @@ Dominio::calcularPuntosAdaptativos(double start, double end,
     return puntos;
 }
 
-// ── Escribe Datos.json con muestreo adaptativo ────────────────────────────────
 void Dominio::guardarEnJsonTiempoReal(
     const std::string& filename,
     double start, double end,
-    double /*zoom*/, double /*panx*/, double /*pany*/)
+    double /*zoom*/, double /*panx*/, double /*pany*/,
+    const std::string& raiz)
 {
-    fs::path rutaCompleta = fs::path(__FILE__).parent_path() / "datos" / filename;
+    fs::path rutaCompleta = fs::path(raiz) / "datos" / filename;
     fs::create_directories(rutaCompleta.parent_path());
 
     std::ofstream archivo(rutaCompleta);
@@ -176,11 +172,11 @@ void Dominio::guardarEnJsonTiempoReal(
     archivo.close();
 }
 
-// ── Compatibilidad (ya no se llama desde main) ────────────────────────────────
 void Dominio::guardarRectangulosJson(
     const std::string& filename,
     double limInferior, double /*limSuperior*/,
-    double dX, int totalRectangulos)
+    double dX, int totalRectangulos,
+    const std::string& raiz)
 {
     json jsonData;
     jsonData["rectangulos"] = json::array();
@@ -200,8 +196,8 @@ void Dominio::guardarRectangulosJson(
         jsonData["rectangulos"].push_back(rect);
     }
 
-    fs::path rutaCompleta = fs::path(__FILE__).parent_path() / "datos" / filename;
+    fs::path rutaCompleta = fs::path(raiz) / "datos" / filename;
     fs::create_directories(rutaCompleta.parent_path());
     std::ofstream archivo(rutaCompleta);
-    if (archivo) { archivo << jsonData.dump(4); }
+    if (archivo) archivo << jsonData.dump(4);
 }

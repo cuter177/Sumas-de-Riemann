@@ -23,15 +23,17 @@ public:
 
     // Escribe Datos.json con muestreo adaptativo
     void guardarEnJsonTiempoReal(
-        const std::string& filename,
-        double start, double end,
-        double zoom = 1.0, double panx = 0.0, double pany = 0.0);
+         const std::string& filename,
+         double start, double end,
+        double zoom = 1.0, double panx = 0.0, double pany = 0.0,
+        const std::string& raiz = "");
 
     // Compatibilidad (no se usa en el flujo principal)
     void guardarRectangulosJson(
-        const std::string& filename,
-        double limInferior, double limSuperior,
-        double deltaX, int totalRectangulos);
+    const std::string& filename,
+    double limInferior, double limSuperior,
+    double dX, int totalRectangulos,
+    const std::string& raiz);
 
 private:
     std::string expresion;

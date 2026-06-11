@@ -1,23 +1,13 @@
 # Archivos de Visual Studio / CLion / IDE
 *.sln
 *.vcxproj*
-.idea/
 *.iml
 cmake-build-debug/*
 
-# Archivos temporales de Windows
-Thumbs.db
-.DS_Store
-
-# Archivos de datos generados
-datos/*.json
-
-# Archivos de Visual Studio / CLion / IDE
-*.sln
-*.vcxproj*
-.idea/
-*.iml
-cmake-build-debug/*
+# Conservar configuración esencial de CLion
+.idea/*
+!.idea/misc.xml
+!.idea/workspace.xml
 
 # Archivos temporales de Windows
 Thumbs.db
@@ -46,5 +36,4 @@ java/
 javaFx/
 
 releasewin.bat
-
 release/

@@ -8,8 +8,9 @@
 
 std::atomic<bool> pythonScriptRunning{false};
 
-PythonManager::PythonManager() {}
-
+PythonManager::PythonManager() {
+    directorioRaiz = obtenerDirectorioRaiz();
+}
 std::string PythonManager::obtenerDirectorioBase() {
     char path[MAX_PATH];
     GetModuleFileNameA(nullptr, path, MAX_PATH);
@@ -18,18 +19,16 @@ std::string PythonManager::obtenerDirectorioBase() {
 
 std::string PythonManager::obtenerDirectorioRaiz() {
     fs::path dir = obtenerDirectorioBase();
-    while (!dir.empty() && dir.filename() != "Riemann_2.0")
+    while (!dir.empty() && !fs::exists(dir / "Graficadora.py"))
         dir = dir.parent_path();
     return dir.string();
 }
-
 bool PythonManager::fileExists(const std::string& p) {
     return fs::exists(p);
 }
 
 void PythonManager::leerParametros(double& zoom, double& pan_x, double& pan_y) {
-    std::string raiz = obtenerDirectorioRaiz();
-    std::string ruta = (fs::path(raiz) / "datos" / "Parametros.json").string();
+    std::string ruta = (fs::path(directorioRaiz) / "datos" / "Parametros.json").string();
     for (int i = 0; i < 5 && !fileExists(ruta); ++i)
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
@@ -42,7 +41,10 @@ void PythonManager::leerParametros(double& zoom, double& pan_x, double& pan_y) {
 }
 
 void PythonManager::ejecutarScriptPython() {
-    std::string raiz = obtenerDirectorioRaiz();
+    std::string raiz = directorioRaiz;
+    std::cout << "Raiz Python: " << raiz << "\n";
+    std::cout << "Python exists: " << fileExists((fs::path(raiz) / "python-3.13.9-embed-amd64" / "python.exe").string()) << "\n";
+    std::cout << "Graficadora exists: " << fileExists((fs::path(raiz) / "Graficadora.py").string()) << "\n";
     if (!SetCurrentDirectoryA(raiz.c_str())) {
         std::cerr << "Error SetCurrentDirectory: " << GetLastError() << "\n";
         pythonScriptRunning = false;

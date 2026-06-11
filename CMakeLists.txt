@@ -10,7 +10,7 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/Debug)
 
 # Archivos fuente
-add_executable(Documents
+add_executable(Riemann
         main.cpp
         cutintegral.cpp
         Dominio.cpp
@@ -24,5 +24,5 @@ add_executable(Documents
 
 # Si necesitas librerías adicionales en Windows
 if(WIN32)
-    target_link_libraries(Documents shlwapi)
+    target_link_libraries(Riemann shlwapi)
 endif()
