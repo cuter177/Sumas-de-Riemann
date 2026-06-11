@@ -31,15 +31,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="338d1a18-1a52-492c-83a5-082c1b705097" name="Changes" comment="Version 3.0 para graficar en tiempo real">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dominio.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Dominio.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dominio.h" beforeDir="false" afterPath="$PROJECT_DIR$/Dominio.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PythonManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/PythonManager.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PythonManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/PythonManager.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
-    </list>
+    <list default="true" id="338d1a18-1a52-492c-83a5-082c1b705097" name="Changes" comment="Version 3.0 para graficar en tiempo real" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -114,7 +106,7 @@
     "RunOnceActivity.west.config.association.type.startup.service": "true",
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
-    "git-widget-placeholder": "dev",
+    "git-widget-placeholder": "main",
     "last_opened_file_path": "C:/Users/Pop90/Documents/Riemann_2.0",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -277,7 +269,7 @@
       <workItem from="1781115739936" duration="236000" />
       <workItem from="1781138244125" duration="136000" />
       <workItem from="1781138543849" duration="1558000" />
-      <workItem from="1781140156771" duration="3158000" />
+      <workItem from="1781140156771" duration="3605000" />
     </task>
     <task id="LOCAL-00001" summary="Se soluciono el problema de x^2">
       <option name="closed" value="true" />
