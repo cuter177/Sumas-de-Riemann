@@ -21,9 +21,11 @@ python-3.13.9-embed-amd64/
 
 # Binarios compilados
 bin/
+build/
 *.exe
 *.o
 *.obj
+Riemann-portable.zip
 
 # Build de Java
 Interfaz/target/

@@ -1,0 +1,117 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Tag a publicar (ej. v2.1). Vacío = solo compilar sin release.'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Ensure Maven
+        shell: pwsh
+        run: |
+          if (-not (Get-Command mvn -ErrorAction SilentlyContinue)) {
+            choco install maven -y --no-progress
+          }
+          mvn -v
+
+      - name: Set up MSYS2 (MinGW-w64 + freeglut)
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: false
+          path-type: inherit
+          install: >-
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-ninja
+            mingw-w64-x86_64-make
+            mingw-w64-x86_64-freeglut
+
+      - name: Compute version
+        shell: bash
+        run: |
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          elif [ -n "${{ github.event.inputs.release_tag }}" ]; then
+            VERSION="${{ github.event.inputs.release_tag }}"
+            VERSION="${VERSION#v}"
+          else
+            VERSION="dev"
+          fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "Building version: $VERSION"
+
+      - name: Build portable release
+        shell: pwsh
+        run: |
+          ./empaquetar.ps1 -CmakeGenerator Ninja
+
+      - name: Package artifact
+        shell: pwsh
+        run: |
+          $zip = "Riemann-windows-$env:VERSION.zip"
+          if (Test-Path $zip) { Remove-Item $zip -Force }
+          Move-Item "Riemann-portable.zip" $zip
+          Get-ChildItem $zip | Format-Table Name, Length
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: riemann-windows
+          path: Riemann-windows-*.zip
+          if-no-files-found: error
+          retention-days: 30
+
+  release:
+    needs: [build-windows]
+    if: startsWith(github.ref, 'refs/tags/') || github.event.inputs.release_tag != ''
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: List artifacts
+        run: ls -laR artifacts/
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.release_tag || github.ref_name }}
+          files: artifacts/*.zip
+          generate_release_notes: true
+          draft: false
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

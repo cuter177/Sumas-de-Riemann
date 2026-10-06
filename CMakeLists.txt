@@ -25,4 +25,14 @@ add_executable(Riemann
 # Si necesitas librerías adicionales en Windows
 if(WIN32)
     target_link_libraries(Riemann shlwapi)
+
+    # Enlazado estático del runtime de MinGW para release portable:
+    # evita depender de libgcc_s_seh-1.dll, libstdc++-6.dll y libwinpthread-1.dll
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        target_link_options(Riemann PRIVATE
+            -static
+            -static-libgcc
+            -static-libstdc++
+        )
+    endif()
 endif()
