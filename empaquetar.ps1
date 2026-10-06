@@ -156,7 +156,7 @@ function Ensure-JavaFx {
         return
     }
     if ($SkipDownload) { Fail "No existe $JavaFxDir y -SkipDownload esta activo." }
-    $url = "https://download2.gluonhq.com/openjfx/$JavaFxVersion/openjfx-$JavaFxVersion_windows-x64_bin-sdk.zip"
+    $url = "https://download2.gluonhq.com/openjfx/$JavaFxVersion/openjfx-${JavaFxVersion}_windows-x64_bin-sdk.zip"
     $tmp = Join-Path $env:TEMP "openjfx-$JavaFxVersion-sdk.zip"
     Download-File $url $tmp
     $extract = Join-Path $env:TEMP "openjfx-$JavaFxVersion-extract"

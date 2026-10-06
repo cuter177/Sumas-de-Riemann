@@ -2,8 +2,8 @@ name: Build & Release
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches: [main]
+    tags: ['v*']
   workflow_dispatch:
     inputs:
       release_tag:
@@ -15,7 +15,55 @@ permissions:
   contents: write
 
 jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.compute.outputs.tag }}
+      version: ${{ steps.compute.outputs.version }}
+    steps:
+      - name: Checkout (con tags)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Compute version
+        id: compute
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            TAG="$GITHUB_REF_NAME"
+          elif [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            TAG="${{ github.event.inputs.release_tag }}"
+          elif [ "$GITHUB_REF_NAME" = "main" ]; then
+            latest=$(git tag -l 'v*' | sort -V | tail -n1)
+            if [ -z "$latest" ]; then
+              TAG="v1.0"
+            else
+              major=$(echo "$latest" | sed -E 's/^v([0-9]+)\..*/\1/')
+              minor=$(echo "$latest" | sed -E 's/^v[0-9]+\.([0-9]+).*/\1/')
+              TAG="v${major}.$((minor + 1))"
+            fi
+            # Si el tag ya existe (carreras entre merges), sube el minor.
+            while git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1; do
+              major=$(echo "$TAG" | sed -E 's/^v([0-9]+)\..*/\1/')
+              minor=$(echo "$TAG" | sed -E 's/^v[0-9]+\.([0-9]+).*/\1/')
+              TAG="v${major}.$((minor + 1))"
+            done
+          else
+            TAG=""
+          fi
+
+          VERSION="${TAG#v}"
+          if [ -z "$VERSION" ]; then VERSION="dev"; fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Computado: tag='$TAG' version='$VERSION'"
+
   build-windows:
+    needs: [version]
     runs-on: windows-latest
 
     steps:
@@ -55,20 +103,6 @@ jobs:
             mingw-w64-x86_64-make
             mingw-w64-x86_64-freeglut
 
-      - name: Compute version
-        shell: bash
-        run: |
-          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
-            VERSION="${GITHUB_REF_NAME#v}"
-          elif [ -n "${{ github.event.inputs.release_tag }}" ]; then
-            VERSION="${{ github.event.inputs.release_tag }}"
-            VERSION="${VERSION#v}"
-          else
-            VERSION="dev"
-          fi
-          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
-          echo "Building version: $VERSION"
-
       - name: Build portable release
         shell: pwsh
         run: |
@@ -76,6 +110,8 @@ jobs:
 
       - name: Package artifact
         shell: pwsh
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
         run: |
           $zip = "Riemann-windows-$env:VERSION.zip"
           if (Test-Path $zip) { Remove-Item $zip -Force }
@@ -91,8 +127,8 @@ jobs:
           retention-days: 30
 
   release:
-    needs: [build-windows]
-    if: startsWith(github.ref, 'refs/tags/') || github.event.inputs.release_tag != ''
+    needs: [version, build-windows]
+    if: needs.version.outputs.tag != ''
     runs-on: ubuntu-latest
 
     steps:
@@ -108,7 +144,8 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.event.inputs.release_tag || github.ref_name }}
+          tag_name: ${{ needs.version.outputs.tag }}
+          name: Riemann ${{ needs.version.outputs.tag }}
           files: artifacts/*.zip
           generate_release_notes: true
           draft: false
