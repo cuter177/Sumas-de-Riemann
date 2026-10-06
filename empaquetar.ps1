@@ -151,11 +151,14 @@ function Ensure-JavaRuntime {
 }
 
 function Ensure-JavaFx {
-    if (Test-Path (Join-Path $JavaFxDir "lib")) {
-        Ok "JavaFX ya presente en $JavaFxDir/lib"
+    # Se necesitan AMBAS carpetas: lib/ (modulos .jar) y bin/ (DLLs nativos:
+    # glass.dll, prism_d3d.dll, javafx_font.dll, ...). Los .jar de lib/ NO
+    # contienen los nativos, por lo que sin bin/ JavaFX no arranca.
+    if ((Test-Path (Join-Path $JavaFxDir "lib")) -and (Test-Path (Join-Path $JavaFxDir "bin"))) {
+        Ok "JavaFX ya presente en $JavaFxDir (lib + bin)"
         return
     }
-    if ($SkipDownload) { Fail "No existe $JavaFxDir y -SkipDownload esta activo." }
+    if ($SkipDownload) { Fail "No existe $JavaFxDir/lib o /bin y -SkipDownload esta activo." }
     $url = "https://download2.gluonhq.com/openjfx/$JavaFxVersion/openjfx-${JavaFxVersion}_windows-x64_bin-sdk.zip"
     $tmp = Join-Path $env:TEMP "openjfx-$JavaFxVersion-sdk.zip"
     Download-File $url $tmp
@@ -166,9 +169,17 @@ function Ensure-JavaFx {
         Fail "Estructura inesperada del SDK JavaFX en $extract"
     }
     if (Test-Path $JavaFxDir) { Remove-Item $JavaFxDir -Recurse -Force }
-    New-Item -ItemType Directory -Force -Path (Join-Path $JavaFxDir "lib") | Out-Null
-    Copy-Item (Join-Path $inner.FullName "lib/*") (Join-Path $JavaFxDir "lib") -Recurse -Force
-    Ok "JavaFX $JavaFxVersion SDK instalado en $JavaFxDir/lib"
+    foreach ($sub in @("lib", "bin")) {
+        $src = Join-Path $inner.FullName $sub
+        if (-not (Test-Path $src)) { continue }
+        $dst = Join-Path $JavaFxDir $sub
+        New-Item -ItemType Directory -Force -Path $dst | Out-Null
+        Copy-Item (Join-Path $src "*") $dst -Recurse -Force
+    }
+    if (-not (Test-Path (Join-Path $JavaFxDir "bin/glass.dll"))) {
+        Fail "El SDK JavaFX no contiene bin/glass.dll; no se puede empaquetar JavaFX."
+    }
+    Ok "JavaFX $JavaFxVersion SDK instalado en $JavaFxDir (lib + bin)"
 }
 
 # Empaqueta freeglut con el nombre exacto que busca PyOpenGL en Windows x64:
@@ -427,6 +438,7 @@ $checks = @(
     "$(Split-Path $PythonEmbedDir -Leaf)/python.exe",
     "$(Split-Path $JavaDir -Leaf)/bin/java.exe",
     "$(Split-Path $JavaFxDir -Leaf)/lib",
+    "$(Split-Path $JavaFxDir -Leaf)/bin/glass.dll",
     "$(Split-Path $PythonEmbedDir -Leaf)/Lib/site-packages/OpenGL",
     "$(Split-Path $PythonEmbedDir -Leaf)/Lib/site-packages/numpy",
     "$(Split-Path $PythonEmbedDir -Leaf)/Lib/site-packages/OpenGL/DLLS/freeglut64.vc14.dll"
