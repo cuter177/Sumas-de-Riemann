@@ -84,7 +84,12 @@ int main() {
             double xd = limInferior + (i + 1) * deltaDeX;
             if (xd > limSuperior) xd = limSuperior;
 
-            std::string limite = std::to_string(xi);      // no-const: compatible con getMathExpression
+            // Punto medio del subintervalo: evita evaluar en los bordes (donde la
+            // función puede no estar definida, p. ej. 1/sin(x) en x=0) y además
+            // mejora la precisión de la suma.
+            double xm = 0.5 * (xi + xd);
+
+            std::string limite = numeroATexto(xm);      // no-const: compatible con getMathExpression
             toPostFix pfx(getMathExpression(expresion, limite));
             Expression_Parser parser(pfx.getPostFixExpression());
             auto tree = parser.toTree();

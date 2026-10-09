@@ -25,4 +25,8 @@ const bool isOperator(const std::string& givenOperator);
 
 const bool isFunction(const std::string& givenOperator);
 
+// Formatea un double con precisión suficiente. Evita el redondeo a 6 decimales
+// de std::to_string, que introducía error en límites y delta_x.
+const std::string numeroATexto(double valor);
+
 #endif

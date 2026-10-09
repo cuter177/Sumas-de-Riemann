@@ -2,6 +2,15 @@
 
 
 #include <string>
+#include <sstream>
+#include <iomanip>
+
+const std::string numeroATexto(double valor)
+{
+    std::ostringstream oss;
+    oss << std::setprecision(17) << valor;
+    return oss.str();
+}
 
 const std::string sustitucionPi(std::string& input)
 {

@@ -27,7 +27,7 @@ using namespace std;
             Expression_Parser myTree(x.getPostFixExpression());
             std::shared_ptr<node> tree = myTree.toTree();
 
-        limI = std::to_string(myTree.evaluateExpressionTree(tree));
+        limI = numeroATexto(myTree.evaluateExpressionTree(tree));
     }
     void cortarIntegral::setLimS(std::string valor) {
 
@@ -37,7 +37,7 @@ using namespace std;
             Expression_Parser myTree(x.getPostFixExpression());
             std::shared_ptr<node> tree = myTree.toTree();
 
-        limS = std::to_string(myTree.evaluateExpressionTree(tree));
+        limS = numeroATexto(myTree.evaluateExpressionTree(tree));
     }
     void cortarIntegral::setLimI_mostrar(std::string valor) {
         limI_mostrar = valor;
@@ -54,7 +54,7 @@ using namespace std;
             throw std::runtime_error("El número de rectángulos debe ser mayor que 0");
         }
         n = static_cast<int>(tempN); // ahora sí lo guardas como entero;
-        deltaX = std::to_string((ls - li) / tempN);
+        deltaX = numeroATexto((ls - li) / tempN);
     }
 
 
