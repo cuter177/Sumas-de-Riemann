@@ -1,7 +1,14 @@
 import json
 import os
+import sys
 import threading
 import time
+
+# En Linux PyOpenGL puede autodetectar el backend EGL, pero freeglut (GLUT) usa
+# GLX. Sin forzar GLX, registrar los callbacks falla con
+# "Attempt to retrieve context when no valid context".
+if sys.platform.startswith("linux"):
+    os.environ.setdefault("PYOPENGL_PLATFORM", "glx")
 
 from OpenGL.GL import *
 from OpenGL.GLUT import *

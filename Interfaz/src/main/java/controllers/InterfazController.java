@@ -229,12 +229,12 @@ public class InterfazController {
         if(!validarN()){
             return;
         }
-        // Datos a guardar
-        String f = txtFuncion.getText();
+        // Datos a guardar (normalizados: sin espacios sobrantes ni coma decimal)
+        String f = txtFuncion.getText() == null ? "" : txtFuncion.getText().trim();
         f = f.replaceAll("\\bsen\\b", "sin");
-        String li = txtLi.getText();
-        String ls = txtLs.getText();
-        String n = txtN.getText();
+        String li = normalizarNumero(txtLi.getText());
+        String ls = normalizarNumero(txtLs.getText());
+        String n = normalizarNumero(txtN.getText());
 
         Map<String, Object> datos = new HashMap<>();
         datos.put("funcion", f);
@@ -354,15 +354,17 @@ public class InterfazController {
     }
     boolean validarLimites() {
 
-        String regex = "(?i)-?\\s*(\\d+(\\.\\d+)?|pi|e|n)(\\s*[*/]\\s*(\\d+(\\.\\d+)?|pi|e|n))*";
+        // Se normaliza la entrada: espacios sobrantes y coma decimal -> punto.
+        String regex = "(?i)[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+|pi|e|n)"
+                     + "(?:\\s*[*/]\\s*(?:\\d+(?:\\.\\d*)?|\\.\\d+|pi|e|n))*";
 
-        if (!txtLi.getText().matches(regex)) {
+        if (!normalizarNumero(txtLi.getText()).matches(regex)) {
             lblSuma.setText("Límite inferior inválido.");
             lblDeltax.setText("");
             return false;
         }
 
-        if (!txtLs.getText().matches(regex)) {
+        if (!normalizarNumero(txtLs.getText()).matches(regex)) {
             lblSuma.setText("Límite superior inválido.");
             lblDeltax.setText("");
             return false;
@@ -370,9 +372,14 @@ public class InterfazController {
 
         return true;
     }
+    // Quita espacios sobrantes y unifica el separador decimal (coma -> punto).
+    static String normalizarNumero(String s) {
+        if (s == null) return "";
+        return s.trim().replace(',', '.');
+    }
     boolean validarN(){
         String regex = "^[1-9]\\d*$";
-        if (!txtN.getText().matches(regex)) {
+        if (!normalizarNumero(txtN.getText()).matches(regex)) {
             lblSuma.setText("El numero de rectangulos de ser mayor que cero ");
             lblDeltax.setText("");
             return false;

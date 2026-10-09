@@ -43,9 +43,9 @@ Interfaz/data/
 # Log de arranque de JavaFX (generado en runtime)
 java.log
 
-# Java/JavaFX runtime
-java/
-javaFx/
+# Java/JavaFX runtime (solo en la raíz del proyecto)
+/java/
+/javaFx/
 
 releasewin.bat
 release/
