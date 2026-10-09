@@ -1,44 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.web.WebView?>
 
-<?import javafx.scene.layout.HBox?>
-<AnchorPane prefHeight="495.0" prefWidth="602.0" stylesheets="@/css/styles.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.InterfazController">
-   <children>
-      <Label layoutX="193.0" layoutY="14.0" text="Sumas de Riemann">
-         <font>
-            <Font size="24.0" />
-         </font>
-      </Label>
-      <TextField fx:id="txtFuncion" layoutX="14.0" layoutY="60.0" prefHeight="26.0" prefWidth="574.0" promptText="Ingresar función " />
-      <HBox layoutX="14.0" layoutY="95.0" prefWidth="574" spacing="11" >
-         <TextField fx:id="txtLi" prefWidth="184" promptText="Límite inferior"/>
-         <TextField fx:id="txtLs" prefWidth="184" promptText="Límite superior"/>
-         <TextField fx:id="txtN" prefWidth="184" promptText="Número de rectángulos"/>
-      </HBox>
-      <Button layoutX="244.0" layoutY="363.0" mnemonicParsing="false" onAction="#guardarJson" prefHeight="35.0" prefWidth="101.0" styleClass="btn-calcular" text="Calcular" />
-      <Label fx:id="lblSuma" layoutX="12.0" layoutY="409.0" prefHeight="20.0" prefWidth="574.0" >
-         <font>
-            <Font size="14.0" />
-         </font></Label>
-      <Label fx:id="lblDeltax" layoutX="12.0" layoutY="450.0" prefHeight="20.0" prefWidth="574.0">
-         <font>
-            <Font size="14.0" />
-         </font></Label>
-      <AnchorPane fx:id="visorLatex" layoutX="145.0" layoutY="148.0" prefHeight="200.0" prefWidth="300.0">
-
+<BorderPane prefWidth="640.0" prefHeight="560.0" minWidth="460.0" minHeight="420.0" stylesheets="@/css/styles.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.InterfazController">
+   <top>
+      <VBox fx:id="barraSuperior" spacing="8.0">
+         <padding>
+            <Insets bottom="4.0" left="14.0" right="14.0" top="10.0" />
+         </padding>
          <children>
-            <WebView fx:id="webViewLatex" prefHeight="200.0" prefWidth="300.0" />
+            <HBox fx:id="tituloBar" alignment="CENTER_LEFT" spacing="8.0">
+               <children>
+                  <Label text="Sumas de Riemann">
+                     <font>
+                        <Font size="24.0" />
+                     </font>
+                  </Label>
+                  <Region HBox.hgrow="ALWAYS" />
+                  <Button fx:id="btnMinimizar" mnemonicParsing="false" onAction="#Salir" styleClass="btn-minimizar" text="—" />
+                  <Button fx:id="btnCerrar" mnemonicParsing="false" onAction="#Cerrar" styleClass="btn-cerrar" text="✕" />
+               </children>
+            </HBox>
+            <TextField fx:id="txtFuncion" maxWidth="Infinity" prefHeight="28.0" promptText="Ingresar función " />
+            <HBox spacing="11.0">
+               <children>
+                  <TextField fx:id="txtLi" maxWidth="Infinity" promptText="Límite inferior" HBox.hgrow="ALWAYS" />
+                  <TextField fx:id="txtLs" maxWidth="Infinity" promptText="Límite superior" HBox.hgrow="ALWAYS" />
+                  <TextField fx:id="txtN" maxWidth="Infinity" promptText="Número de rectángulos" HBox.hgrow="ALWAYS" />
+               </children>
+            </HBox>
          </children>
-
+      </VBox>
+   </top>
+   <center>
+      <AnchorPane fx:id="visorLatex" minHeight="140.0">
+         <BorderPane.margin>
+            <Insets bottom="4.0" left="14.0" right="14.0" top="4.0" />
+         </BorderPane.margin>
+         <children>
+            <WebView fx:id="webViewLatex" />
+         </children>
       </AnchorPane>
-      <Button layoutX="546.0" layoutY="14.0" mnemonicParsing="false" onAction="#Salir" styleClass="btn-minimizar" text="—" />
-
-      <Button layoutX="574.0" layoutY="14.0" mnemonicParsing="false" onAction="#Cerrar" styleClass="btn-cerrar" text="✕" />
-   </children>
-</AnchorPane>
+   </center>
+   <bottom>
+      <VBox alignment="CENTER" spacing="6.0">
+         <padding>
+            <Insets bottom="12.0" left="14.0" right="14.0" top="6.0" />
+         </padding>
+         <children>
+            <Button fx:id="btnCalcular" mnemonicParsing="false" onAction="#guardarJson" styleClass="btn-calcular" text="Calcular" />
+            <Label fx:id="lblSuma" maxWidth="Infinity" wrapText="true" />
+            <Label fx:id="lblDeltax" maxWidth="Infinity" wrapText="true" />
+         </children>
+      </VBox>
+   </bottom>
+</BorderPane>

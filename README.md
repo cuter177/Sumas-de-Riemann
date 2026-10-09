@@ -112,6 +112,26 @@ tar -xzf Riemann-linux-portable.tar.gz -C Riemann
 
 ---
 
+## Interfaz gráfica y gestores de ventanas
+
+La ventana JavaFX se adapta al entorno:
+
+- **Escritorios flotantes con compositor** (GNOME, KDE, XFCE, Cinnamon, MATE,
+  Unity, Budgie…): ventana sin bordes con barra de título propia; se puede
+  arrastrar y con doble clic maximizar, y tiene botones propios de
+  minimizar/cerrar.
+- **Gestores de mosaico** (i3, sway, Hyprland, bspwm, dwm…) o entornos no
+  reconocidos: ventana con **decoración nativa** gestionada por el WM (tileo,
+  mover y redimensionar); se ocultan los botones propios.
+
+Se puede forzar el modo con la variable de entorno
+`RIEMANN_WINDOW_STYLE=transparent` o `RIEMANN_WINDOW_STYLE=decorated`.
+
+El layout es **responsivo** (`BorderPane`/`VBox`/`HBox`): los campos y el visor
+de LaTeX se redimensionan con la ventana, con un tamaño mínimo de 460×420.
+
+---
+
 ## Notas de portabilidad
 
 - Todo el código dependiente de plataforma está aislado con `#ifdef _WIN32`

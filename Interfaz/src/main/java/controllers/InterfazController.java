@@ -5,9 +5,11 @@ import com.google.gson.GsonBuilder;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 
@@ -27,6 +29,11 @@ public class InterfazController {
     @FXML private TextField txtN;
     @FXML private AnchorPane visorLatex;
     @FXML private WebView webViewLatex;
+
+    // Barra de título personalizada (solo se usa con chrome propio).
+    @FXML private HBox tituloBar;
+    @FXML private Button btnMinimizar;
+    @FXML private Button btnCerrar;
 
 
     // campo nuevo
@@ -63,6 +70,37 @@ public class InterfazController {
         txtLi.textProperty().addListener((o, ov, nv) -> generarLatex());
         txtLs.textProperty().addListener((o, ov, nv) -> generarLatex());
         txtN.textProperty().addListener((o, ov, nv) -> generarLatex());
+    }
+
+    /**
+     * Adapta la ventana al gestor de ventanas en uso.
+     *
+     * - Escritorios de mosaico (i3, sway, ...): se usa decoración nativa y se
+     *   ocultan los botones propios; el WM gestiona mover y redimensionar.
+     * - Chrome personalizado (GNOME/KDE con compositor): se muestran los botones
+     *   y la barra de título permite arrastrar la ventana.
+     */
+    public void configurarVentana(Stage stage, boolean chromePersonalizado) {
+        for (Button b : new Button[]{btnMinimizar, btnCerrar}) {
+            if (b != null) {
+                b.setVisible(chromePersonalizado);
+                b.setManaged(chromePersonalizado);
+            }
+        }
+        if (!chromePersonalizado || tituloBar == null || stage == null) return;
+
+        final double[] offset = new double[2];
+        tituloBar.setOnMousePressed(e -> {
+            offset[0] = e.getSceneX();
+            offset[1] = e.getSceneY();
+        });
+        tituloBar.setOnMouseDragged(e -> {
+            stage.setX(e.getScreenX() - offset[0]);
+            stage.setY(e.getScreenY() - offset[1]);
+        });
+        tituloBar.setOnMouseClicked(e -> {
+            if (e.getClickCount() == 2) stage.setMaximized(!stage.isMaximized());
+        });
     }
 
     private void cargarPlantillaMathJax() {
