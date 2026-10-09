@@ -108,7 +108,7 @@ int main() {
                          "no hay resultado numerico.\n";
 
         // ── 3. Guardar resultado ───────────────────────────────────────────
-        JsonIO::escribirResultado(sumatoria, deltaDeX, finito, rutaResultado.string());
+        JsonIO::escribirResultado(sumatoria, deltaDeX, ok, rutaResultado.string());
         std::cout << "Resultado guardado en Resultado.json\n";
 
         // ── 4. Escribir Rectangulo.json reutilizando valores ya calculados ─

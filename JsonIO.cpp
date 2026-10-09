@@ -55,6 +55,10 @@ void JsonIO::escribirResultado(double resultado, double deltaX, bool ok, const s
     if (okFinal) {
         j["resultado_integral"] = resultado;
         j["delta_x"] = deltaX;
+    } else if (ok) {
+        // La expresión es válida pero el resultado no es finito: la función no
+        // está definida en (algún punto de) el intervalo y la integral diverge.
+        j["mensaje"] = "La función no es finita en el intervalo (la integral diverge o la función no está definida ahí).";
     }
 
     std::ofstream file(ruta);

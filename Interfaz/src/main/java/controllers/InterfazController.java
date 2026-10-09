@@ -287,7 +287,12 @@ public class InterfazController {
 
             if (okObj instanceof Boolean ok) {
                 if(!ok){
-                    lblSuma.setText("Funcion o argumento invalido");
+                    Object msg = datos.get("mensaje");
+                    if (msg instanceof String s && !s.isBlank()) {
+                        lblSuma.setText(s);
+                    } else {
+                        lblSuma.setText("Funcion o argumento invalido");
+                    }
                     lblDeltax.setText("");
                     return;
                 }
