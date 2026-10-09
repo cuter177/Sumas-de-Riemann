@@ -33,12 +33,12 @@
    ========================================================== */
 .text-field {
     -fx-background-color: rgba(255,255,255,0.06);
-    -fx-background-radius: 6px;
-    -fx-border-radius: 6px;
-    -fx-padding: 2 6;      /* REDUCIDO — evita que el texto se corte */
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-padding: 6 10;      /* campos mas altos y comodos */
     -fx-border-color: #444;
-    -fx-border-width: 1px; /* IMPORTANTE: ANTES NO SE ESPECIFICABA */
-    -fx-font-size: 13px;
+    -fx-border-width: 1px;
+    -fx-font-size: 15px;
     -fx-text-fill: #f0f0f0;
 }
 
@@ -118,9 +118,9 @@
 .btn-calcular {
     -fx-background-color: #212121;
     -fx-text-fill: white;
-    -fx-font-size: 16px;
-    -fx-background-radius: 8px;
-    -fx-padding: 6 12;
+    -fx-font-size: 18px;
+    -fx-background-radius: 10px;
+    -fx-padding: 10 24;
     -fx-cursor: hand;
 }
 
