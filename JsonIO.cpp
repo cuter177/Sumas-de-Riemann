@@ -6,6 +6,7 @@
 #include <fstream>
 #include <iostream>
 #include <thread>
+#include <cmath>
 #include <nlohmann/json.hpp>
 #include <filesystem>
 namespace fs = std::filesystem;
@@ -44,9 +45,14 @@ bool JsonIO::leerFuncion(const std::string& ruta,
 
 void JsonIO::escribirResultado(double resultado, double deltaX, bool ok, const std::string& ruta)
 {
+    // Nunca escribir NaN/Inf: nlohmann los serializa como null y la interfaz no
+    // puede leerlos (provoca un NullPointerException). Si el resultado no es
+    // finito se marca como inválido.
+    bool okFinal = ok && std::isfinite(resultado) && std::isfinite(deltaX);
+
     json j;
-    j["ok"] = ok;
-    if (ok) {
+    j["ok"] = okFinal;
+    if (okFinal) {
         j["resultado_integral"] = resultado;
         j["delta_x"] = deltaX;
     }

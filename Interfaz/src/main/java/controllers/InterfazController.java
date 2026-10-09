@@ -349,8 +349,17 @@ public class InterfazController {
                 }
             }
 
-            double resultado = ((Number) datos.get("resultado_integral")).doubleValue();
-            double deltax = ((Number) datos.get("delta_x")).doubleValue();
+            Object resObj = datos.get("resultado_integral");
+            Object dxObj  = datos.get("delta_x");
+
+            if (!(resObj instanceof Number)) {
+                lblSuma.setText("La función no es finita en el intervalo (resultado inválido).");
+                lblDeltax.setText("");
+                return;
+            }
+
+            double resultado = ((Number) resObj).doubleValue();
+            double deltax = (dxObj instanceof Number) ? ((Number) dxObj).doubleValue() : 0.0;
 
             lblSuma.setText("Resultado de la sumatoria: " + String.valueOf(resultado));
             lblDeltax.setText("Delta de x: " + String.valueOf(deltax));

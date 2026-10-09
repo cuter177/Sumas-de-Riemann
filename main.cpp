@@ -6,6 +6,7 @@
 #include <thread>
 #include <atomic>
 #include <chrono>
+#include <cmath>
 #include <filesystem>
 #include <nlohmann/json.hpp>
 
@@ -97,8 +98,17 @@ int main() {
 
         std::cout << "Sumatoria: " << std::setprecision(15) << sumatoria << "\n";
 
+        // Un resultado no finito (p. ej. 1/(sin(x)) en x=0) significa que la
+        // función no está definida / la integral diverge en el intervalo.
+        // Se reporta como inválido, pero la gráfica y los rectángulos sí se
+        // generan (se omiten los puntos/alturas no finitos).
+        bool finito = ok && std::isfinite(sumatoria);
+        if (ok && !finito)
+            std::cout << "La funcion no es finita en el intervalo (posible singularidad); "
+                         "no hay resultado numerico.\n";
+
         // ── 3. Guardar resultado ───────────────────────────────────────────
-        JsonIO::escribirResultado(sumatoria, deltaDeX, ok, rutaResultado.string());
+        JsonIO::escribirResultado(sumatoria, deltaDeX, finito, rutaResultado.string());
         std::cout << "Resultado guardado en Resultado.json\n";
 
         // ── 4. Escribir Rectangulo.json reutilizando valores ya calculados ─
