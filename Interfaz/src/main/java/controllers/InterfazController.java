@@ -19,6 +19,8 @@ import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.Map;
 
+import utils.Latex;
+
 public class InterfazController {
 
     @FXML private Label lblDeltax;
@@ -174,67 +176,9 @@ public class InterfazController {
     }
 
     private String normalizarSimbolos(String expr) {
-        if (expr == null) return "";
-
-        String latex = expr;
-
-        // --- Constantes ---
-        latex = latex.replaceAll("\\bpi\\b", "\\\\pi");
-        latex = latex.replaceAll("\\bPI\\b", "\\\\pi");
-        latex = latex.replaceAll("\\bPi\\b", "\\\\pi");
-
-        // --- Funciones matemáticas ---
-        latex = latex.replaceAll("\\bcos\\b", "\\\\cos");
-        latex = latex.replaceAll("\\bsin\\b", "\\\\sin");
-        latex = latex.replaceAll("\\bsen\\b", "\\\\sin");
-        latex = latex.replaceAll("\\btan\\b", "\\\\tan");
-        latex = latex.replaceAll("\\blog\\b", "\\\\log");
-        latex = latex.replaceAll("\\bln\\b", "\\\\ln");
-        latex = latex.replaceAll("\\bcosh\\b", "\\\\cosh");
-        latex = latex.replaceAll("\\btanh\\b", "\\\\tanh");
-        latex = latex.replaceAll("\\bsinh\\b", "\\\\sinh");
-        latex = latex.replaceAll("\\barctan\\b", "\\\\arctan");
-        latex = latex.replaceAll("\\barcsin\\b", "\\\\arcsin");
-        latex = latex.replaceAll("\\barccos\\b", "\\\\arccos");
-        latex = latex.replaceAll("abs\\s*\\(([^()]*)\\)", "\\\\left|$1\\\\right|");
-
-        // Fracciones simples con símbolos LaTeX tipo \pi/2 o e/3
-        latex = latex.replaceAll(
-                "(\\\\[a-zA-Z]+|[a-zA-Z0-9]+)\\s*/\\s*([a-zA-Z0-9]+)",
-                "\\\\frac{$1}{$2}"
-        );
-
-        // --- Potencias con paréntesis ---
-        latex = latex.replaceAll("([a-zA-Z0-9])\\^\\(([^)]+)\\)", "$1^{$2}");
-
-        // --- Potencias simples ---
-        latex = latex.replaceAll("([a-zA-Z0-9])\\^([a-zA-Z0-9])", "$1^{$2}");
-
-        // --- Exponenciales simples e^2 ---
-        latex = latex.replaceAll("\\be\\^([a-zA-Z0-9]+)", "e^{$1}");
-
-        // --- e^(...) ---
-        latex = latex.replaceAll("e\\^\\(([^)]+)\\)", "e^{$1}");
-
-        // --- Fracciones (a)/(b) con paréntesis ---
-        latex = latex.replaceAll(
-                "\\(([^)]*)\\)\\s*/\\s*\\(([^)]*)\\)",
-                "\\\\frac{$1}{$2}"
-        );
-
-        /// --- Fracciones simples tipo a/b ---
-        latex = latex.replaceAll(
-                "(?<![\\\\\\w])([a-zA-Z0-9]+)\\s*/\\s*([a-zA-Z0-9]+)",
-                "\\\\frac{$1}{$2}"
-        );
-
-// --- Fracciones simples con símbolos LaTeX tipo \pi/2 ---
-        latex = latex.replaceAll(
-                "(\\\\[a-zA-Z]+|[a-zA-Z0-9]+)\\s*/\\s*([a-zA-Z0-9]+)",
-                "\\\\frac{$1}{$2}"
-        );
-
-        return latex;
+        // Convierte la expresión a LaTeX con fracciones y sin paréntesis
+        // redundantes (ver utils/Latex.java).
+        return Latex.toLatex(expr);
     }
 
 
