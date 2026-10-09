@@ -99,6 +99,7 @@
     -fx-border-radius: 6px;
     -fx-border-color: transparent;   /* Nada visible */
     -fx-text-fill: #ffffff;      /* Texto invisible hasta que tú lo muestres */
+    -fx-font-size: 16px;         /* resultados un poco mas grandes */
 }
 
 
