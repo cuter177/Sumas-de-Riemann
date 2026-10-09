@@ -2,9 +2,6 @@
 #include <string>
 #include <vector>
 #include <iomanip>
-#include <windows.h>
-#include <io.h>
-#include <fcntl.h>
 #include <fstream>
 #include <thread>
 #include <atomic>
@@ -21,6 +18,7 @@
 #include "PythonManager.h"
 #include "JsonIO.h"
 #include "JavaManager.h"
+#include "Platform.h"
 
 using namespace std;
 namespace fs = std::filesystem;
@@ -32,10 +30,7 @@ int main() {
     JavaManager    jm;
     jm.ejecutarJarEnThread();
 
-    fs::path exePath  = fs::current_path();
-    char exePathBuf[MAX_PATH];
-    GetModuleFileNameA(nullptr, exePathBuf, MAX_PATH);
-    fs::path raiz = fs::path(exePathBuf).parent_path(); // bin/Debug
+    fs::path raiz = platform::ejecutableDir(); // bin/Debug
     if (raiz.filename() == "Debug") raiz = raiz.parent_path(); // bin
     if (raiz.filename() == "bin")   raiz = raiz.parent_path(); // raíz
     fs::path rutaJson      = raiz / "Interfaz" / "data" / "Funcion.json";

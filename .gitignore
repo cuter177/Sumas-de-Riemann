@@ -18,6 +18,11 @@ datos/*.json
 
 # Python embebido
 python-3.13.9-embed-amd64/
+# Python standalone (release Linux)
+/python/
+# Entornos virtuales
+.venv/
+venv/
 
 # Binarios compilados
 bin/
@@ -26,12 +31,17 @@ build/
 *.o
 *.obj
 Riemann-portable.zip
+Riemann-linux-portable.tar.gz
+Riemann-linux-*.tar.gz
 
 # Build de Java
 Interfaz/target/
 
 # Datos de interfaz generados en runtime
 Interfaz/data/
+
+# Log de arranque de JavaFX (generado en runtime)
+java.log
 
 # Java/JavaFX runtime
 java/

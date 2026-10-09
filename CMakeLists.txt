@@ -12,7 +12,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/Debug)
 # Archivos fuente
 add_executable(Riemann
         main.cpp
-        cutintegral.cpp
+        cutIntegral.cpp
         Dominio.cpp
         ExpressionParser.cpp
         toPostFix.cpp
@@ -21,6 +21,10 @@ add_executable(Riemann
         JsonIO.cpp
         JavaManager.cpp
 )
+
+# Hilos (std::thread / std::async). En Linux es obligatorio enlazar pthread.
+find_package(Threads REQUIRED)
+target_link_libraries(Riemann PRIVATE Threads::Threads)
 
 # Si necesitas librerías adicionales en Windows
 if(WIN32)
@@ -35,4 +39,13 @@ if(WIN32)
             -static-libstdc++
         )
     endif()
+endif()
+
+# En Linux se enlazan estáticamente libstdc++/libgcc para reducir la dependencia
+# de versiones concretas de la distro (la libc del sistema sí se usa).
+if(UNIX AND NOT APPLE AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_link_options(Riemann PRIVATE
+        -static-libstdc++
+        -static-libgcc
+    )
 endif()

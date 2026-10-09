@@ -6,6 +6,7 @@
 
 #include <string>
 #include <thread>
+#include <filesystem>
 
 class JavaManager {
 public:
@@ -14,7 +15,7 @@ public:
 
 private:
     void ejecutarJar();
-    std::wstring obtenerRutaProyecto();
+    std::filesystem::path obtenerRutaProyecto();
 };
 
 #endif

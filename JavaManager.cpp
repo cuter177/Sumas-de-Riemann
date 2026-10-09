@@ -1,35 +1,47 @@
 #include "JavaManager.h"
-#include <windows.h>
+#include "Platform.h"
+
 #include <iostream>
 #include <filesystem>
 #include <vector>
 #include <thread>
+#include <cstdlib>
+
+#ifdef _WIN32
+  #ifndef WIN32_LEAN_AND_MEAN
+    #define WIN32_LEAN_AND_MEAN
+  #endif
+  #ifndef NOMINMAX
+    #define NOMINMAX
+  #endif
+  #include <windows.h>
+#else
+  #include <unistd.h>
+  #include <sys/types.h>
+  #include <sys/wait.h>
+  #include <fcntl.h>
+  #include <cstring>
+  #include <cerrno>
+#endif
 
 namespace fs = std::filesystem;
 
 JavaManager::JavaManager() {}
 
-std::wstring JavaManager::obtenerRutaProyecto() {
-    wchar_t buffer[MAX_PATH];
-    GetModuleFileNameW(nullptr, buffer, MAX_PATH);
-
-    // Ruta completa del ejecutable
-    fs::path exeDir = fs::path(buffer).parent_path();
+fs::path JavaManager::obtenerRutaProyecto() {
+    fs::path exeDir = platform::ejecutableDir();
 
     // ============================================
     // Modo desarrollo:
-    //   Riemann_2.0/bin/Debug/Documents.exe
+    //   bin/Debug/Riemann(.exe) -> raíz del proyecto
     // ============================================
-    if (exeDir.filename() == L"Debug" &&
-        exeDir.parent_path().filename() == L"bin") {
-        return exeDir.parent_path().parent_path().wstring();
-    }
+    if (exeDir.filename() == "Debug" && exeDir.parent_path().filename() == "bin")
+        return exeDir.parent_path().parent_path();
 
     // ============================================
-    // Modo release:
-    //   Riemann_2.0/Documents.exe
+    // Modo release: el ejecutable está en la raíz
     // ============================================
-    return exeDir.wstring();
+    return exeDir;
 }
 
 void JavaManager::ejecutarJarEnThread() {
@@ -38,80 +50,73 @@ void JavaManager::ejecutarJarEnThread() {
 }
 
 void JavaManager::ejecutarJar() {
-    std::wstring root = obtenerRutaProyecto();
+    fs::path root = obtenerRutaProyecto();
 
-    std::wcout << L"[DEBUG] Ruta base detectada: " << root << std::endl;
+    std::cout << "[DEBUG] Ruta base detectada: " << root.string() << std::endl;
 
     // =========================
     // Rutas relativas al proyecto
     // =========================
-    std::wstring javaExe = root + L"\\java\\bin\\java.exe";
-    std::wstring fxLib   = root + L"\\javaFx\\lib";
-    std::wstring fxBin   = root + L"\\javaFx\\bin";
-    std::wstring jarFile = root + L"\\Interfaz\\target\\Interfaz-Riemann.jar";
-    std::wstring deps    = root + L"\\Interfaz\\target\\dependency\\*";
-    std::wstring logFile = root + L"\\java.log";
+#ifdef _WIN32
+    fs::path javaExe     = root / "java" / "bin" / "java.exe";
+    // Natives de JavaFX en Windows viven en javaFx\bin (glass.dll, prism_*.dll...)
+    fs::path fxNativeDir = root / "javaFx" / "bin";
+#else
+    fs::path javaExe     = root / "java" / "bin" / "java";
+    // En Linux el SDK de Gluon coloca jars y .so en javaFx/lib
+    fs::path fxNativeDir = root / "javaFx" / "lib";
+#endif
+    fs::path fxLib       = root / "javaFx" / "lib";
+    fs::path jarFile     = root / "Interfaz" / "target" / "Interfaz-Riemann.jar";
+    fs::path deps        = root / "Interfaz" / "target" / "dependency";
+    fs::path logFile     = root / "java.log";
+    fs::path workingDir  = root / "Interfaz";
 
     // =========================
     // Verificaciones
     // =========================
     bool error = false;
-
-    if (!fs::exists(javaExe)) {
-        std::wcerr << L"[ERROR] java.exe NO encontrado en: "
-                   << javaExe << std::endl;
-        error = true;
-    }
-
-    if (!fs::exists(fxLib)) {
-        std::wcerr << L"[ERROR] Carpeta JavaFX lib NO encontrada en: "
-                   << fxLib << std::endl;
-        error = true;
-    }
-
-    if (!fs::exists(fxBin)) {
-        std::wcerr << L"[ERROR] Carpeta JavaFX bin (DLLs nativos) NO encontrada en: "
-                   << fxBin << std::endl;
-        error = true;
-    }
-
-    if (!fs::exists(jarFile)) {
-        std::wcerr << L"[ERROR] Interfaz.jar NO encontrado en: "
-                   << jarFile << std::endl;
-        error = true;
-    }
+    auto check = [&error](bool ok, const char* msg, const fs::path& p) {
+        if (!ok) {
+            std::cerr << msg << ": " << p.string() << std::endl;
+            error = true;
+        }
+    };
+    check(fs::exists(javaExe),     "[ERROR] java NO encontrado en", javaExe);
+    check(fs::exists(fxLib),       "[ERROR] Carpeta JavaFX lib NO encontrada en", fxLib);
+    check(fs::exists(fxNativeDir), "[ERROR] Carpeta nativa JavaFX NO encontrada en", fxNativeDir);
+    check(fs::exists(jarFile),     "[ERROR] Interfaz.jar NO encontrado en", jarFile);
 
     if (error) {
-        std::wcerr << L"[ERROR] No se puede iniciar JavaFX por archivos faltantes."
-                   << std::endl;
+        std::cerr << "[ERROR] No se puede iniciar JavaFX por archivos faltantes." << std::endl;
         return;
     }
 
+#ifdef _WIN32
     // =========================
-    // Construcción del comando
+    // Windows: CreateProcessW
     // Los nativos de JavaFX (glass.dll, prism_*.dll, ...) viven en javaFx\bin;
     // hay que indicarlo con -Djava.library.path o JavaFX no arranca.
     // =========================
     std::wstring command =
-        L"\"" + javaExe + L"\" "
-        L"-Djava.library.path=\"" + fxBin + L"\" "
-        L"--module-path \"" + fxLib + L"\" "
+        L"\"" + javaExe.wstring() + L"\" "
+        L"-Djava.library.path=\"" + fxNativeDir.wstring() + L"\" "
+        L"--module-path \"" + fxLib.wstring() + L"\" "
         L"--add-modules javafx.controls,javafx.fxml,javafx.web "
-        L"-cp \"" + jarFile + L";" + deps + L"\" "
+        L"-cp \"" + jarFile.wstring() + L";" + deps.wstring() + L"\\*\" "
         L"aplication.App";
 
     std::vector<wchar_t> cmd(command.begin(), command.end());
     cmd.push_back(L'\0');
 
     // Redirigir la salida de Java a java.log para poder diagnosticar fallos
-    // incluso si la consola se cierra.
     SECURITY_ATTRIBUTES sa{};
     sa.nLength = sizeof(sa);
     sa.bInheritHandle = TRUE;
     sa.lpSecurityDescriptor = nullptr;
 
     HANDLE hLog = CreateFileW(
-        logFile.c_str(),
+        logFile.wstring().c_str(),
         GENERIC_WRITE,
         FILE_SHARE_READ | FILE_SHARE_WRITE,
         &sa,
@@ -133,9 +138,6 @@ void JavaManager::ejecutarJar() {
 
     PROCESS_INFORMATION pi{};
 
-    // Directorio de trabajo: Interfaz
-    std::wstring workingDir = root + L"\\Interfaz";
-
     BOOL ok = CreateProcessW(
         nullptr,
         cmd.data(),
@@ -144,21 +146,19 @@ void JavaManager::ejecutarJar() {
         TRUE,
         0,
         nullptr,
-        workingDir.c_str(),
+        workingDir.wstring().c_str(),
         &si,
         &pi
     );
 
     if (!ok) {
-        std::wcerr << L"[ERROR] CreateProcessW falló: "
-                   << GetLastError() << std::endl;
+        std::cerr << "[ERROR] CreateProcessW falló: " << GetLastError() << std::endl;
         if (hLog != INVALID_HANDLE_VALUE) CloseHandle(hLog);
         return;
     }
 
-    std::wcout << L"[C++] JavaFX ejecutándose... (salida en java.log)" << std::endl;
+    std::cout << "[C++] JavaFX ejecutándose... (salida en java.log)" << std::endl;
 
-    // Esperar a que cierre JavaFX
     WaitForSingleObject(pi.hProcess, INFINITE);
 
     DWORD exitCode = 0;
@@ -168,17 +168,79 @@ void JavaManager::ejecutarJar() {
     CloseHandle(pi.hThread);
     if (hLog != INVALID_HANDLE_VALUE) CloseHandle(hLog);
 
-    // Si JavaFX arrancó y el usuario la cerró, terminamos limpiamente.
     if (exitCode == 0) {
-        std::wcout << L"[C++] JavaFX terminada. Cerrando aplicación C++..."
-                   << std::endl;
+        std::cout << "[C++] JavaFX terminada. Cerrando aplicación C++..." << std::endl;
         exit(0);
     }
 
-    // Si JavaFX falló, NO cerramos la app: dejamos la consola abierta con el
-    // error visible y el detalle en java.log.
-    std::wcerr << L"[ERROR] JavaFX terminó con código " << exitCode
-               << L". Revisa '" << logFile << L"' para ver la causa." << std::endl;
-    std::wcerr << L"[ERROR] La consola se mantiene abierta para mostrar el problema."
-               << std::endl;
+    std::cerr << "[ERROR] JavaFX terminó con código " << exitCode
+              << ". Revisa '" << logFile.string() << "' para ver la causa." << std::endl;
+    std::cerr << "[ERROR] La consola se mantiene abierta para mostrar el problema." << std::endl;
+#else
+    // =========================
+    // Linux / macOS: fork + execvp
+    // =========================
+    // La biblioteca nativa puede estar en javaFx/lib (SDK de Gluon) y, en algunas
+    // variantes, también en javaFx/bin. Se añaden las que existan.
+    std::string libPath = fxNativeDir.string();
+    if (fs::exists(root / "javaFx" / "bin"))
+        libPath += ":" + (root / "javaFx" / "bin").string();
+
+    std::string classpath = jarFile.string() + ":" + (deps / "*").string();
+
+    std::vector<std::string> args = {
+        javaExe.string(),
+        "-Djava.library.path=" + libPath,
+        "--module-path", fxLib.string(),
+        "--add-modules", "javafx.controls,javafx.fxml,javafx.web",
+        "-cp", classpath,
+        "aplication.App"
+    };
+
+    std::vector<char*> argv;
+    argv.reserve(args.size() + 1);
+    for (auto& a : args) argv.push_back(const_cast<char*>(a.c_str()));
+    argv.push_back(nullptr);
+
+    // Redirigir stdout/stderr de Java a java.log
+    int fd = ::open(logFile.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+
+    pid_t pid = fork();
+    if (pid < 0) {
+        std::cerr << "[ERROR] fork falló: " << std::strerror(errno) << std::endl;
+        if (fd >= 0) ::close(fd);
+        return;
+    }
+
+    if (pid == 0) {
+        // Hijo
+        if (fd >= 0) {
+            dup2(fd, STDOUT_FILENO);
+            dup2(fd, STDERR_FILENO);
+            ::close(fd);
+        }
+        if (!workingDir.empty() && chdir(workingDir.c_str()) != 0) {
+            _exit(126);
+        }
+        execvp(argv[0], argv.data());
+        _exit(127);
+    }
+
+    if (fd >= 0) ::close(fd);
+
+    std::cout << "[C++] JavaFX ejecutándose... (salida en java.log)" << std::endl;
+
+    int status = 0;
+    waitpid(pid, &status, 0);
+    int exitCode = WIFEXITED(status) ? WEXITSTATUS(status) : 1;
+
+    if (exitCode == 0) {
+        std::cout << "[C++] JavaFX terminada. Cerrando aplicación C++..." << std::endl;
+        exit(0);
+    }
+
+    std::cerr << "[ERROR] JavaFX terminó con código " << exitCode
+              << ". Revisa '" << logFile.string() << "' para ver la causa." << std::endl;
+    std::cerr << "[ERROR] La consola se mantiene abierta para mostrar el problema." << std::endl;
+#endif
 }

@@ -1,20 +1,35 @@
 // PythonManager.cpp
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#include <windows.h>
-
 #include "PythonManager.h"
 #include "JsonIO.h"
+#include "Platform.h"
+
+#include <vector>
+#include <cstdlib>
+
+#ifdef _WIN32
+  #ifndef WIN32_LEAN_AND_MEAN
+    #define WIN32_LEAN_AND_MEAN
+  #endif
+  #ifndef NOMINMAX
+    #define NOMINMAX
+  #endif
+  #include <windows.h>
+#else
+  #include <unistd.h>
+  #include <sys/types.h>
+  #include <sys/wait.h>
+  #include <cstring>
+  #include <cerrno>
+#endif
 
 std::atomic<bool> pythonScriptRunning{false};
 
 PythonManager::PythonManager() {
     directorioRaiz = obtenerDirectorioRaiz();
 }
+
 std::string PythonManager::obtenerDirectorioBase() {
-    char path[MAX_PATH];
-    GetModuleFileNameA(nullptr, path, MAX_PATH);
-    return fs::weakly_canonical(fs::path(path)).parent_path().string();
+    return platform::ejecutableDir().string();
 }
 
 std::string PythonManager::obtenerDirectorioRaiz() {
@@ -23,9 +38,35 @@ std::string PythonManager::obtenerDirectorioRaiz() {
         dir = dir.parent_path();
     return dir.string();
 }
+
 bool PythonManager::fileExists(const std::string& p) {
     return fs::exists(p);
 }
+
+namespace {
+// Intérprete a usar. Windows: Python embebido del release.
+// Linux/macOS: Python del sistema, un venv del proyecto o un Python
+// standalone bundleado en el release.
+std::string resolverPython(const std::string& raiz) {
+    if (const char* env = std::getenv("RIEMANN_PYTHON")) {
+        if (*env) return env;
+    }
+#ifdef _WIN32
+    fs::path embed = fs::path(raiz) / "python-3.13.9-embed-amd64" / "python.exe";
+    if (fs::exists(embed)) return embed.string();
+    return "python";
+#else
+    const fs::path candidatos[] = {
+        fs::path(raiz) / "python" / "bin" / "python3",
+        fs::path(raiz) / ".venv" / "bin" / "python",
+        fs::path(raiz) / "venv" / "bin" / "python",
+    };
+    for (const auto& c : candidatos)
+        if (fs::exists(c)) return c.string();
+    return "python3";
+#endif
+}
+} // namespace
 
 void PythonManager::leerParametros(double& zoom, double& pan_x, double& pan_y) {
     std::string ruta = (fs::path(directorioRaiz) / "datos" / "Parametros.json").string();
@@ -43,8 +84,13 @@ void PythonManager::leerParametros(double& zoom, double& pan_x, double& pan_y) {
 void PythonManager::ejecutarScriptPython() {
     std::string raiz = directorioRaiz;
     std::cout << "Raiz Python: " << raiz << "\n";
-    std::cout << "Python exists: " << fileExists((fs::path(raiz) / "python-3.13.9-embed-amd64" / "python.exe").string()) << "\n";
     std::cout << "Graficadora exists: " << fileExists((fs::path(raiz) / "Graficadora.py").string()) << "\n";
+
+#ifdef _WIN32
+    std::cout << "Python exists: "
+              << fileExists((fs::path(raiz) / "python-3.13.9-embed-amd64" / "python.exe").string())
+              << "\n";
+
     if (!SetCurrentDirectoryA(raiz.c_str())) {
         std::cerr << "Error SetCurrentDirectory: " << GetLastError() << "\n";
         pythonScriptRunning = false;
@@ -80,6 +126,42 @@ void PythonManager::ejecutarScriptPython() {
     pythonScriptRunning = false;
     CloseHandle(pi.hProcess);
     CloseHandle(pi.hThread);
+#else
+    if (chdir(raiz.c_str()) != 0) {
+        std::cerr << "Error chdir: " << std::strerror(errno) << "\n";
+        pythonScriptRunning = false;
+        return;
+    }
+
+    const std::string python = resolverPython(raiz);
+    const std::string script = (fs::path(raiz) / "Graficadora.py").string();
+    std::cout << "Python usado: " << python << "\n";
+
+    std::vector<std::string> args = { python, script };
+    std::vector<char*> argv;
+    argv.reserve(args.size() + 1);
+    for (auto& a : args) argv.push_back(const_cast<char*>(a.c_str()));
+    argv.push_back(nullptr);
+
+    pythonScriptRunning = true;
+
+    pid_t pid = fork();
+    if (pid < 0) {
+        std::cerr << "Error fork: " << std::strerror(errno) << "\n";
+        pythonScriptRunning = false;
+        return;
+    }
+    if (pid == 0) {
+        // Hijo: reemplazar la imagen del proceso por Python.
+        execvp(python.c_str(), argv.data());
+        std::cerr << "Error execvp: " << std::strerror(errno) << "\n";
+        _exit(127);
+    }
+
+    int status = 0;
+    waitpid(pid, &status, 0);
+    pythonScriptRunning = false;
+#endif
 }
 
 void PythonManager::ejecutarScriptPythonEnThread(
